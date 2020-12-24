@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define max(a, b) (a < b ? b : a)
+extern inline int max(int a, int b) { return a < b ? b : a; }
 
 /**
  * Node represents a single node in AVL tree.

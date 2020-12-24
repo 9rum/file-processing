@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define max(a, b) (a < b ? b : a)
+extern inline int max(int a, int b) { return a < b ? b : a; }
 
 /**
  * Node represents a single node in Binary search tree.
