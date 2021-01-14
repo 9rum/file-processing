@@ -28,7 +28,7 @@ typedef struct Node {
 Node *getNode(int m) {
   Node *node  = malloc(sizeof(Node));
   node -> n   = 0;
-  node -> K   = calloc(m-1, sizeof(int));
+  node -> K   = malloc(sizeof(int)*(m-1));
   node -> P   = calloc(m, sizeof(Node *));
   return node;
 }
@@ -100,16 +100,14 @@ void insertBT(Tree *T, int m, int newKey) {
     tempNode -> K[i]    = newKey;
     tempNode -> P[i+1]  = y;
 
-    newKey              = tempNode -> K[m/2];
-
+    y = getNode(m);
     memcpy(x -> K, tempNode -> K, sizeof(int)*(m/2));
     memcpy(x -> P, tempNode -> P, sizeof(Node *)*(m/2+1));
-
-    y = getNode(m);
     memcpy(y -> K, &tempNode -> K[m/2+1], sizeof(int)*(m-m/2-1));
     memcpy(y -> P, &tempNode -> P[m/2+1], sizeof(Node *)*(m-m/2));
     x -> n = m/2;
     y -> n = m-m/2-1;
+    newKey = tempNode -> K[m/2];
 
     free(tempNode);
   }
