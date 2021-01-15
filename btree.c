@@ -199,7 +199,7 @@ void deleteBT(Tree *T, int m, int oldKey) {
       bestSibling -> n--;
       break;
     }
-    if (b < i) {  /* case of node merge */
+    if (b < i) {                                                                                            /* case of node merge */
       bestSibling -> K[bestSibling -> n] = y -> K[i-1];
       memcpy(&bestSibling -> K[bestSibling -> n+1], x -> K, sizeof(int)*x -> n);
       memcpy(&bestSibling -> P[bestSibling -> n+1], x -> P, sizeof(Node *)*(x -> n+1));
@@ -221,7 +221,7 @@ void deleteBT(Tree *T, int m, int oldKey) {
     x = y;
   }
 
-  if (x == *T && x -> n == 0) { *T = x -> P[0]; free(x); }                                                  /* the level of the tree decreases */
+  if (x -> n == 0) { *T = x -> P[0]; free(x); }                                                             /* the level of the tree decreases */
   free(stack);
   free(iStack);
 }
