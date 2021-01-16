@@ -128,8 +128,7 @@ void insertBT(Tree *T, int m, int newKey) {
  * @param oldKey: a key to delete
  */
 void deleteBT(Tree *T, int m, int oldKey) {
-  int i,
-      cap     = 1,
+  int cap     = 1,
       size    = 0,
       *iStack = malloc(sizeof(int)*cap);
   Node *internalNode,
@@ -137,16 +136,17 @@ void deleteBT(Tree *T, int m, int oldKey) {
        **stack  = malloc(sizeof(Node *)*cap);
 
   while (x != NULL) {                                                                                       /* find position of oldKey while storing x on the stack */
-    i = binarySearch(x -> K, x -> n, oldKey);
-    if (i < x -> n && oldKey == x -> K[i]) break;
+    int i         = binarySearch(x -> K, x -> n, oldKey);
     stack[size]   = x;
     iStack[size]  = i;
-    x             = x -> P[i];
     if (cap <= ++size) { cap <<= 1; stack = realloc(stack, sizeof(Node *)*cap); iStack = realloc(iStack, sizeof(int)*cap); }
+    if (i < x -> n && oldKey == x -> K[i]) break;
+    x = x -> P[i];
   }
 
   if (x == NULL) { free(stack); free(iStack); return; }
 
+  int i = iStack[--size];
   if (x -> P[i+1] != NULL) {                                                                                /* found in internal node */
     internalNode  = x;
     stack[size]   = x;
@@ -235,19 +235,19 @@ void inorderBT(Tree T) { if (T != NULL) { for (int i=0; i<T -> n; i++) { inorder
 int main() {
   int testCases[] = {
     40, 11, 77, 33, 20, 90, 99, 70, 88, 80,
-		66, 10, 22, 30, 44, 55, 50, 60, 100, 28,
-		18, 9, 5, 17, 6, 3, 1, 4, 2, 7,
-		8, 73, 12, 13, 14, 16, 15, 25, 24, 28,
-		45, 49, 42, 43, 41, 47, 48, 46, 63, 68,
-		61, 62, 64, 69, 67, 65, 54, 59, 58, 51,
-		53, 57, 52, 56, 83, 81, 82, 84, 75, 89,
-		66, 10, 22, 30, 44, 55, 50, 60, 100, 28,
-		18, 9, 5, 17, 6, 3, 1, 4, 2, 7,
-		8, 73, 12, 13, 14, 16, 15, 25, 24, 28,
-		40, 11, 77, 33, 20, 90, 99, 70, 88, 80,
-		45, 49, 42, 43, 41, 47, 48, 46, 63, 68,
-		53, 57, 52, 56, 83, 81, 82, 84, 75, 89,
-		61, 62, 64, 69, 67, 65, 54, 59, 58, 51,
+    66, 10, 22, 30, 44, 55, 50, 60, 100, 28,
+    18, 9, 5, 17, 6, 3, 1, 4, 2, 7,
+    8, 73, 12, 13, 14, 16, 15, 25, 24, 28,
+    45, 49, 42, 43, 41, 47, 48, 46, 63, 68,
+    61, 62, 64, 69, 67, 65, 54, 59, 58, 51,
+    53, 57, 52, 56, 83, 81, 82, 84, 75, 89,
+    66, 10, 22, 30, 44, 55, 50, 60, 100, 28,
+    18, 9, 5, 17, 6, 3, 1, 4, 2, 7,
+    8, 73, 12, 13, 14, 16, 15, 25, 24, 28,
+    40, 11, 77, 33, 20, 90, 99, 70, 88, 80,
+    45, 49, 42, 43, 41, 47, 48, 46, 63, 68,
+    53, 57, 52, 56, 83, 81, 82, 84, 75, 89,
+    61, 62, 64, 69, 67, 65, 54, 59, 58, 51,
   };
 
   Tree T = NULL;
