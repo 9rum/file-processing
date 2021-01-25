@@ -11,18 +11,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-/**
- * TerminalNode represents a single terminal node in B+-tree.
- */
-typedef struct TerminalNode {
-  int                 q,  *K;
-  struct TerminalNode *P;
-} TerminalNode;
+#include "bplustree.h"
 
 /**
  * getTerminalNode returns a new terminal node.
- * @param m: number of branch points in B+-tree
+ * @param m: fanout of B+-tree
  */
 TerminalNode *getTerminalNode(int m) {
   TerminalNode *node  = malloc(sizeof(TerminalNode));
@@ -33,17 +26,8 @@ TerminalNode *getTerminalNode(int m) {
 }
 
 /**
- * InternalNode represents a single internal node in B+-tree.
- */
-typedef struct InternalNode {
-  int                 n,  *K;
-  struct InternalNode **Pi;
-  TerminalNode        **Pt;
-} InternalNode;
-
-/**
  * getInternalNode returns a new internal node.
- * @param m: number of branch points in B+-tree
+ * @param m: fanout of B+-tree
  */
 InternalNode *getInternalNode(int m) {
   InternalNode *node  = malloc(sizeof(InternalNode));
@@ -53,11 +37,6 @@ InternalNode *getInternalNode(int m) {
   node -> Pt          = NULL;
   return node;
 }
-
-typedef struct Tree {
-  InternalNode *IndexSet;
-  TerminalNode *SequenceSet;
-} *Tree;
 
 /**
  * binarySearch returns index i where K[i-1] < key <= K[i].
@@ -82,7 +61,7 @@ int binarySearch(int K[], int n, int key) {
 /**
  * insertBPT inserts newKey into T.
  * @param T: a B+-tree
- * @param m: number of branch points in B+-tree
+ * @param m: fanout of B+-tree
  * @param newKey: a key to insert
  */
 void insertBPT(Tree *T, int m, int newKey) {
@@ -92,9 +71,9 @@ void insertBPT(Tree *T, int m, int newKey) {
     (*T) -> SequenceSet = NULL;
   }
 
-  int cap     = 1,
-      size    = 0,
-      *iStack = malloc(sizeof(int)*cap);
+  int cap               = 1,
+      size              = 0,
+      *iStack           = malloc(sizeof(int)*cap);
   InternalNode *x       = (*T) -> IndexSet,
                *y       = NULL,
                **stack  = malloc(sizeof(InternalNode *)*cap);
@@ -236,6 +215,7 @@ void insertBPT(Tree *T, int m, int newKey) {
   (*T) -> IndexSet -> Pi[0] = x;
   (*T) -> IndexSet -> Pi[1] = y;
   (*T) -> IndexSet -> n     = 1;
+
   free(stack);
   free(iStack);
 }
@@ -243,15 +223,15 @@ void insertBPT(Tree *T, int m, int newKey) {
 /**
  * deleteBPT deletes oldKey from T.
  * @param T: a B+-tree
- * @param m: number of branch points in B+-tree
+ * @param m: fanout of B+-tree
  * @param oldKey: a key to delete
  */
 void deleteBPT(Tree *T, int m, int oldKey) {
   if (*T == NULL) return;
 
-  int cap     = 1,
-      size    = 0,
-      *iStack = malloc(sizeof(int)*cap);
+  int cap               = 1,
+      size              = 0,
+      *iStack           = malloc(sizeof(int)*cap);
   InternalNode *x       = (*T) -> IndexSet,
                *y       = NULL,
                **stack  = malloc(sizeof(InternalNode *)*cap);
@@ -274,8 +254,8 @@ void deleteBPT(Tree *T, int m, int oldKey) {
 
   if ((m+1)/2 <= z -> q) { free(stack); free(iStack); return; }
 
-  if (size == 0) {
-    if (z -> q == 0) { (*T) -> SequenceSet = NULL; *T = NULL; free(z); }
+  if    (size == 0) {
+    if  (z -> q == 0) { (*T) -> SequenceSet = NULL; *T = NULL; free(z); }
     free(stack);
     free(iStack);
     return;
@@ -286,8 +266,8 @@ void deleteBPT(Tree *T, int m, int oldKey) {
   int b                     = i == 0 ? i+1 : i == x -> n ? i-1 : x -> Pt[i-1] -> q < x -> Pt[i+1] -> q ? i+1 : i-1; /* choose bestSibling of z node */
   TerminalNode *BestSibling = x -> Pt[b];
 
-  if ((m+1)/2 < BestSibling -> q) {                                                                                 /* case of key redistribution */
-    if (b < i) {
+  if    ((m+1)/2 < BestSibling -> q) {                                                                              /* case of key redistribution */
+    if  (b < i) {
       memcpy(&z -> K[1], z -> K, sizeof(int)*z -> q);
       z -> K[0]   = BestSibling -> K[BestSibling -> q-1];
       x -> K[i-1] = BestSibling -> K[BestSibling -> q-2];
@@ -321,9 +301,9 @@ void deleteBPT(Tree *T, int m, int oldKey) {
   x -> Pt[x -> n] = NULL;
   x -> n--;
 
-  if ((m-1)/2 <= x -> n) { free(stack); free(iStack); return; }
-  if (size == 0) {
-    if (x -> n == 0) { (*T) -> IndexSet = NULL; free(x); }
+  if    ((m-1)/2 <= x -> n) { free(stack); free(iStack); return; }
+  if    (size == 0) {
+    if  (x -> n == 0) { (*T) -> IndexSet = NULL; free(x); }
     free(stack);
     free(iStack);
     return;
@@ -334,8 +314,8 @@ void deleteBPT(Tree *T, int m, int oldKey) {
   b                         = i == 0 ? i+1 : i == y -> n ? i-1 : y -> Pi[i-1] -> n < y -> Pi[i+1] -> n ? i+1 : i-1; /* choose bestSibling of x node */
   InternalNode *bestSibling = y -> Pi[b];
 
-  if ((m-1)/2 < bestSibling -> n) {                                                                                 /* case of key redistribution */
-    if (b < i) {
+  if    ((m-1)/2 < bestSibling -> n) {                                                                              /* case of key redistribution */
+    if  (b < i) {
       memcpy(&x -> K[1], x -> K, sizeof(int)*x -> n);
       memcpy(&x -> Pt[1], x -> Pt, sizeof(TerminalNode *)*(x -> n+1));
       x -> K[0]   = y -> K[i-1];
@@ -378,15 +358,15 @@ void deleteBPT(Tree *T, int m, int oldKey) {
   x = y;
 
   while (0 <= --size) {
-    if ((m-1)/2 <= x -> n) { free(stack); free(iStack); return; }
+    if  ((m-1)/2 <= x -> n) { free(stack); free(iStack); return; }
 
     y           = stack[size];
     i           = iStack[size];
     b           = i == 0 ? i+1 : i == y -> n ? i-1 : y -> Pi[i-1] -> n < y -> Pi[i+1] -> n ? i+1 : i-1;             /* choose bestSibling of x node */
     bestSibling = y -> Pi[b];
 
-    if ((m-1)/2 < bestSibling -> n) {                                                                               /* case of key redistribution */
-      if (b < i) {
+    if    ((m-1)/2 < bestSibling -> n) {                                                                            /* case of key redistribution */
+      if  (b < i) {
         memcpy(&x -> K[1], x -> K, sizeof(int)*x -> n);
         memcpy(&x -> Pi[1], x -> Pi, sizeof(InternalNode *)*(x -> n+1));
         x -> K[0]   = y -> K[i-1];
@@ -428,6 +408,7 @@ void deleteBPT(Tree *T, int m, int oldKey) {
   }
 
   if (x -> n == 0) { (*T) -> IndexSet = x -> Pi[0]; free(x); }                                                      /* the level of tree decreases */
+
   free(stack);
   free(iStack);
 }
@@ -437,29 +418,3 @@ void deleteBPT(Tree *T, int m, int oldKey) {
  * @param T: a B+-tree
  */
 void traverseBPT(Tree T) { if (T != NULL) { for (TerminalNode *node = T -> SequenceSet; node != NULL; node = node -> P) { for (int i=0; i<node -> q; i++) { printf("%d ", node -> K[i]); } } } }
-
-int main() {
-  int testCases[] = {
-    40, 11, 77, 33, 20, 90, 99, 70, 88, 80,
-    66, 10, 22, 30, 44, 55, 50, 60, 100, 28,
-    18, 9, 5, 17, 6, 3, 1, 4, 2, 7,
-    8, 73, 12, 13, 14, 16, 15, 25, 24, 28,
-    45, 49, 42, 43, 41, 47, 48, 46, 63, 68,
-    61, 62, 64, 69, 67, 65, 54, 59, 58, 51,
-    53, 57, 52, 56, 83, 81, 82, 84, 75, 89,
-    66, 10, 22, 30, 44, 55, 50, 60, 100, 28,
-    18, 9, 5, 17, 6, 3, 1, 4, 2, 7,
-    8, 73, 12, 13, 14, 16, 15, 25, 24, 28,
-    40, 11, 77, 33, 20, 90, 99, 70, 88, 80,
-    45, 49, 42, 43, 41, 47, 48, 46, 63, 68,
-    53, 57, 52, 56, 83, 81, 82, 84, 75, 89,
-    61, 62, 64, 69, 67, 65, 54, 59, 58, 51,
-  };
-
-  Tree T = NULL;
-
-  for (int i=0; i<70; i++)    { insertBPT(&T, 3, testCases[i]); traverseBPT(T); printf("\n"); }
-  for (int i=70; i<140; i++)  { deleteBPT(&T, 3, testCases[i]); traverseBPT(T); printf("\n"); }
-  for (int i=0; i<70; i++)    { insertBPT(&T, 4, testCases[i]); traverseBPT(T); printf("\n"); }
-  for (int i=70; i<140; i++)  { deleteBPT(&T, 4, testCases[i]); traverseBPT(T); printf("\n"); }
-}

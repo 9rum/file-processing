@@ -10,18 +10,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include "avltree.h"
 
 extern inline int max(int a, int b) { return a < b ? b : a; }
-
-/**
- * Node represents a single node in AVL tree.
- * @see https://zhjwpku.com/assets/pdf/AED2-10-avl-paper.pdf
- */
-typedef struct Node {
-  int         key,    height, bf;
-  struct Node *left,  *right;
-} Node;
 
 /**
  * getNode returns a new node.
@@ -34,25 +25,11 @@ Node *getNode() {
   return node;
 }
 
-typedef Node *Tree;
-
 /**
  * height returns the height of T.
  * @param T: an AVL tree
  */
 int height(Tree T) { return T == NULL ? 0 : T -> height; }
-
-/**
- * minNode returns the node with minimum key in T.
- * @param T: an AVL tree
- */
-Node *minNode(Tree T) { Node *p = T; while (p -> left != NULL) p = p -> left; return p; }
-
-/**
- * maxNode returns the node with maximum key in T.
- * @param T: an AVL tree
- */
-Node *maxNode(Tree T) { Node *p = T; while (p -> right != NULL) p = p -> right; return p; }
 
 /**
  * rotateLL implements LL rotation in subtree rooted with x.
@@ -198,17 +175,16 @@ void insertAVL(Tree *T, int newKey) {
        *x       = NULL,
        *f       = NULL;
   int size      = 0;
-  
   stack[size++] = NULL;
 
-  while (p != NULL) {     /* Phase 1: find position q to insert newKey */
-    if (newKey == p -> key) { printf("NO"); free(stack); return; }
+  while (p != NULL) {                               /* Phase 1: find position q to insert newKey */
+    if  (newKey == p -> key) { free(stack); return; }
     q             = p;
     stack[size++] = q;
     p             = newKey < p -> key ? p -> left : p -> right;
   }
 
-  Node *y   = getNode();  /* Phase 2: insert newKey as a child of q and rebalance */
+  Node *y   = getNode();                            /* Phase 2: insert newKey as a child of q and rebalance */
   y -> key  = newKey;
 
   if      (*T == NULL)        *T          = y;
@@ -223,14 +199,14 @@ void insertAVL(Tree *T, int newKey) {
   
   free(stack);
 
-  if (x == NULL) { printf("NO"); return; }
+  if (x == NULL) return;
 
-  if (1 < x -> bf) {
-    if (x -> left -> bf < 0)  { rotateLR(T, x, f); printf("LR"); }  /* case of LR */
-    else                      { rotateLL(T, x, f); printf("LL"); }  /* case of LL */
+  if    (1 < x -> bf) {
+    if  (x -> left -> bf < 0)   rotateLR(T, x, f);  /* case of LR */
+    else                        rotateLL(T, x, f);  /* case of LL */
   } else {
-    if (0 < x -> right -> bf) { rotateRL(T, x, f); printf("RL"); }  /* case of RL */
-    else                      { rotateRR(T, x, f); printf("RR"); }  /* case of RR */
+    if  (0 < x -> right -> bf)  rotateRL(T, x, f);  /* case of RL */
+    else                        rotateRR(T, x, f);  /* case of RR */
   }
 }
 
@@ -246,8 +222,6 @@ void deleteAVL(Tree *T, int deleteKey) {
        *x       = NULL,
        *f       = NULL;
   int size      = 0;
-  bool done     = false;
-  
   stack[size++] = NULL;
 
   while (p != NULL && deleteKey != p -> key) {
@@ -256,17 +230,14 @@ void deleteAVL(Tree *T, int deleteKey) {
     p             = deleteKey < p -> key ? p -> left : p -> right;
   }
 
-  if (p == NULL) { printf("NO"); return; }
+  if (p == NULL) { free(stack); return; }
 
   if        (p -> left == NULL && p -> right == NULL) {       /* case of degree 0 */
     if      (q == NULL)       *T          = NULL;             /* case of root */
     else if (q -> left == p)  q -> left   = NULL;
     else                      q -> right  = NULL;
-    
-    free(p);
-    done = true;
-  } else if (p -> left == NULL || p -> right == NULL) {       /* case of degree 1 */
-    if (p -> left != NULL) {
+  } else if   (p -> left == NULL || p -> right == NULL) {     /* case of degree 1 */
+    if        (p -> left != NULL) {
       if      (q == NULL)       *T          = (*T) -> left;   /* case of root */
       else if (q -> left == p)  q -> left   = p -> left;
       else                      q -> right  = p -> left;
@@ -275,32 +246,47 @@ void deleteAVL(Tree *T, int deleteKey) {
       else if (q -> left == p)  q -> left   = p -> right;
       else                      q -> right  = p -> right;
     }
-
-    free(p);
-    done = true;
   } else {                                                    /* case of degree 2 */
-    stack[size++] = p;
-    
-    if (p -> bf <= 0) { p -> key = minNode(p -> right) -> key;  deleteAVL(&p -> right, p -> key); }
-    else              { p -> key = maxNode(p -> left) -> key;   deleteAVL(&p -> left, p -> key);  }
+    stack[size++]   = p;
+    Node *tempNode  = p;
+
+    if (p -> bf <= 0) for (p = p -> right; p -> left != NULL; p = p -> left)  stack[size++] = p;
+    else              for (p = p -> left; p -> right != NULL; p = p -> right) stack[size++] = p;
+
+    tempNode -> key = p -> key;
+    q               = stack[size-1];
+
+    if    (p -> left == NULL && p -> right == NULL) {         /* case of degree 0 */
+      if  (q -> left == p)  q -> left   = NULL;
+      else                  q -> right  = NULL;
+    } else {                                                  /* case of degree 1 */
+      if    (p -> left != NULL) {
+        if  (q -> left == p)  q -> left   = p -> left;
+        else                  q -> right  = p -> left;
+      } else {
+        if  (q -> left == p)  q -> left   = p -> right;
+        else                  q -> right  = p -> right;
+      }
+    }
   }
   
   while (1 <= --size) {
     stack[size] -> height = 1 + max(height(stack[size] -> left), height(stack[size] -> right));
     stack[size] -> bf     = height(stack[size] -> left) - height(stack[size] -> right);
-    if (x == NULL && (1 < stack[size] -> bf || stack[size] -> bf < -1)) x = stack[size], f = stack[size-1];
+    if (x == NULL && (1 < stack[size] -> bf || stack[size] -> bf < -1)) { x = stack[size]; f = stack[size-1]; }
   }
   
+  free(p);
   free(stack);
 
-  if (x == NULL) { if (done) { printf("NO"); } return; }
+  if (x == NULL) return;
 
-  if (1 < x -> bf) {
-    if (x -> left -> bf < 0)  { rotateLR(T, x, f); printf("LR"); }  /* case of LR */
-    else                      { rotateLL(T, x, f); printf("LL"); }  /* case of LL */
+  if    (1 < x -> bf) {
+    if  (x -> left -> bf < 0)   rotateLR(T, x, f);            /* case of LR */
+    else                        rotateLL(T, x, f);            /* case of LL */
   } else {
-    if (0 < x -> right -> bf) { rotateRL(T, x, f); printf("RL"); }  /* case of RL */
-    else                      { rotateRR(T, x, f); printf("RR"); }  /* case of RR */
+    if  (0 < x -> right -> bf)  rotateRL(T, x, f);            /* case of RL */
+    else                        rotateRR(T, x, f);            /* case of RR */
   }
 }
 
@@ -309,14 +295,3 @@ void deleteAVL(Tree *T, int deleteKey) {
  * @param T: an AVL tree
  */
 void inorderAVL(Tree T) { if (T != NULL) { inorderAVL(T -> left); printf("%d ", T -> key); inorderAVL(T -> right); } }
-
-int main() {
-  int testCases[] = {40, 11, 77, 33, 20, 90, 99, 70, 88, 80, 66, 10, 22, 30, 44, 55, 50, 60, 25, 49};
-
-  Tree T = NULL;
-
-  for (int i=0; i<20; i++)  { printf("%d ", testCases[i]); insertAVL(&T, testCases[i]); printf(" : "); inorderAVL(T); printf("\n"); }
-  for (int i=0; i<20; i++)  { printf("%d ", testCases[i]); deleteAVL(&T, testCases[i]); printf(" : "); inorderAVL(T); printf("\n"); }
-  for (int i=0; i<20; i++)  { printf("%d ", testCases[i]); insertAVL(&T, testCases[i]); printf(" : "); inorderAVL(T); printf("\n"); }
-  for (int i=19; 0<=i; i--) { printf("%d ", testCases[i]); deleteAVL(&T, testCases[i]); printf(" : "); inorderAVL(T); printf("\n"); }
-}
