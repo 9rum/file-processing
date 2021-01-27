@@ -233,21 +233,21 @@ void deleteAVL(Tree *T, int deleteKey) {
   if (p == NULL) { free(stack); return; }
 
   if (p -> left != NULL && p -> right != NULL) {              /* case of degree 2 */
-    stack[size++]   = p;
-    Node *tempNode  = p;
+    stack[size++] = p;
+    q             = p;
 
     if (p -> bf <= 0) for (p = p -> right; p -> left != NULL; p = p -> left)  stack[size++] = p;
     else              for (p = p -> left; p -> right != NULL; p = p -> right) stack[size++] = p;
 
-    tempNode -> key = p -> key;
-    q               = stack[size-1];
+    q -> key  = p -> key;
+    q         = stack[size-1];
   }
 
   if        (p -> left == NULL && p -> right == NULL) {       /* case of degree 0 */
     if      (q == NULL)       *T          = NULL;             /* case of root */
     else if (q -> left == p)  q -> left   = NULL;
     else                      q -> right  = NULL;
-  } else if   (p -> left == NULL || p -> right == NULL) {     /* case of degree 1 */
+  } else {                                                    /* case of degree 1 */
     if        (p -> left != NULL) {
       if      (q == NULL)       *T          = (*T) -> left;   /* case of root */
       else if (q -> left == p)  q -> left   = p -> left;
