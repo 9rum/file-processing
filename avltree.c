@@ -232,6 +232,17 @@ void deleteAVL(Tree *T, int deleteKey) {
 
   if (p == NULL) { free(stack); return; }
 
+  if (p -> left != NULL && p -> right != NULL) {              /* case of degree 2 */
+    stack[size++]   = p;
+    Node *tempNode  = p;
+
+    if (p -> bf <= 0) for (p = p -> right; p -> left != NULL; p = p -> left)  stack[size++] = p;
+    else              for (p = p -> left; p -> right != NULL; p = p -> right) stack[size++] = p;
+
+    tempNode -> key = p -> key;
+    q               = stack[size-1];
+  }
+
   if        (p -> left == NULL && p -> right == NULL) {       /* case of degree 0 */
     if      (q == NULL)       *T          = NULL;             /* case of root */
     else if (q -> left == p)  q -> left   = NULL;
@@ -246,30 +257,8 @@ void deleteAVL(Tree *T, int deleteKey) {
       else if (q -> left == p)  q -> left   = p -> right;
       else                      q -> right  = p -> right;
     }
-  } else {                                                    /* case of degree 2 */
-    stack[size++]   = p;
-    Node *tempNode  = p;
-
-    if (p -> bf <= 0) for (p = p -> right; p -> left != NULL; p = p -> left)  stack[size++] = p;
-    else              for (p = p -> left; p -> right != NULL; p = p -> right) stack[size++] = p;
-
-    tempNode -> key = p -> key;
-    q               = stack[size-1];
-
-    if    (p -> left == NULL && p -> right == NULL) {         /* case of degree 0 */
-      if  (q -> left == p)  q -> left   = NULL;
-      else                  q -> right  = NULL;
-    } else {                                                  /* case of degree 1 */
-      if    (p -> left != NULL) {
-        if  (q -> left == p)  q -> left   = p -> left;
-        else                  q -> right  = p -> left;
-      } else {
-        if  (q -> left == p)  q -> left   = p -> right;
-        else                  q -> right  = p -> right;
-      }
-    }
   }
-  
+
   while (1 <= --size) {
     stack[size] -> height = 1 + max(height(stack[size] -> left), height(stack[size] -> right));
     stack[size] -> bf     = height(stack[size] -> left) - height(stack[size] -> right);
