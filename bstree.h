@@ -11,6 +11,9 @@
 #ifndef _BSTREE_H
 #define _BSTREE_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 /**
  * Node represents a node in Binary search tree.
  * @see https://www.sciencedirect.com/science/article/pii/S0019995860909013
@@ -20,18 +23,7 @@ typedef struct Node {
   struct Node *left,  *right;
 } Node;
 
-/**
- * getNode returns a new node.
- */
-Node *getNode();
-
 typedef Node *Tree;
-
-/**
- * height returns the height of T.
- * @param T: a binary search tree
- */
-int height(Tree T);
 
 /**
  * insertBST inserts newKey into T.

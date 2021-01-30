@@ -11,6 +11,9 @@
 #ifndef _AVLTREE_H
 #define _AVLTREE_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 /**
  * Node represents a node in AVL tree.
  * @see https://zhjwpku.com/assets/pdf/AED2-10-avl-paper.pdf
@@ -20,50 +23,7 @@ typedef struct Node {
   struct Node *left,  *right;
 } Node;
 
-/**
- * getNode returns a new node.
- */
-Node *getNode();
-
 typedef Node *Tree;
-
-/**
- * height returns the height of T.
- * @param T: an AVL tree
- */
-int height(Tree T);
-
-/**
- * rotateLL implements LL rotation in subtree rooted with x.
- * @param T: an AVL tree
- * @param x: root node of subtree
- * @param f: parent node of x
- */
-void rotateLL(Tree *T, Node *x, Node *f);
-
-/**
- * rotateRR implements RR rotation in subtree rooted with x.
- * @param T: an AVL tree
- * @param x: root node of subtree
- * @param f: parent node of x
- */
-void rotateRR(Tree *T, Node *x, Node *f);
-
-/**
- * rotateLR implements LR rotation in subtree rooted with x.
- * @param T: an AVL tree
- * @param x: root node of subtree
- * @param f: parent node of x
- */
-void rotateLR(Tree *T, Node *x, Node *f);
-
-/**
- * rotateRL implements RL rotation in subtree rooted with x.
- * @param T: an AVL tree
- * @param x: root node of subtree
- * @param f: parent node of x
- */
-void rotateRL(Tree *T, Node *x, Node *f);
 
 /**
  * insertAVL inserts newKey into T.

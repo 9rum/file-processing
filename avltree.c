@@ -8,8 +8,6 @@
  * AVL tree implementation
  */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include "avltree.h"
 
 extern inline int max(int a, int b) { return a < b ? b : a; }

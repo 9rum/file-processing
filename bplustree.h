@@ -11,6 +11,10 @@
 #ifndef _BPLUSTREE_H
 #define _BPLUSTREE_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 /**
  * TerminalNode represents a terminal node in B+-tree.
  */
@@ -18,12 +22,6 @@ typedef struct TerminalNode {
   int                 q,  *K;
   struct TerminalNode *P;
 } TerminalNode;
-
-/**
- * getTerminalNode returns a new terminal node.
- * @param m: fanout of B+-tree
- */
-TerminalNode *getTerminalNode(int m);
 
 /**
  * InternalNode represents an internal node in B+-tree.
@@ -34,24 +32,10 @@ typedef struct InternalNode {
   TerminalNode        **Pt;
 } InternalNode;
 
-/**
- * getInternalNode returns a new internal node.
- * @param m: fanout of B+-tree
- */
-InternalNode *getInternalNode(int m);
-
 typedef struct Tree {
   InternalNode *IndexSet;
   TerminalNode *SequenceSet;
 } *Tree;
-
-/**
- * binarySearch returns index i where K[i-1] < key <= K[i].
- * @param K: an array
- * @param n: size of array
- * @param key: a key to search
- */
-int binarySearch(int K[], int n, int key);
 
 /**
  * insertBPT inserts newKey into T.

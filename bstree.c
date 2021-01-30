@@ -8,8 +8,6 @@
  * Binary search tree implementation
  */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include "bstree.h"
 
 extern inline int max(int a, int b) { return a < b ? b : a; }

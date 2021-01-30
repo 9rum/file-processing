@@ -11,6 +11,10 @@
 #ifndef _BTREE_H
 #define _BTREE_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 /**
  * Node represents a node in B-tree.
  * @see https://infolab.usc.edu/csci585/Spring2010/den_ar/indexing.pdf
@@ -20,21 +24,7 @@ typedef struct Node {
   struct Node **P;
 } Node;
 
-/**
- * getNode returns a new node.
- * @param m: fanout of B-tree
- */
-Node *getNode(int m);
-
 typedef Node *Tree;
-
-/**
- * binarySearch returns index i where K[i-1] < key <= K[i].
- * @param K: an array
- * @param n: size of array
- * @param key: a key to search
- */
-int binarySearch(int K[], int n, int key);
 
 /**
  * insertBT inserts newKey into T.
