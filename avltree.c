@@ -192,7 +192,7 @@ void insertAVL(Tree *T, int newKey) {
   while (1 <= --size) {
     stack[size] -> height = 1 + max(height(stack[size] -> left), height(stack[size] -> right));
     stack[size] -> bf     = height(stack[size] -> left) - height(stack[size] -> right);
-    if (x == NULL && (1 < stack[size] -> bf || stack[size] -> bf < -1)) x = stack[size], f = stack[size-1];
+    if (x == NULL && (1 < stack[size] -> bf || stack[size] -> bf < -1)) { x = stack[size]; f = stack[size-1]; }
   }
   
   free(stack);
