@@ -14,7 +14,7 @@
  * getTerminalNode returns a new terminal node.
  * @param m: fanout of B+-tree
  */
-TerminalNode *getTerminalNode(int m) {
+static inline TerminalNode *getTerminalNode(int m) {
   TerminalNode *node  = malloc(sizeof(TerminalNode));
   node -> q           = 0;
   node -> K           = malloc(sizeof(int)*m);
@@ -26,7 +26,7 @@ TerminalNode *getTerminalNode(int m) {
  * getInternalNode returns a new internal node.
  * @param m: fanout of B+-tree
  */
-InternalNode *getInternalNode(int m) {
+static inline InternalNode *getInternalNode(int m) {
   InternalNode *node  = malloc(sizeof(InternalNode));
   node -> n           = 0;
   node -> K           = malloc(sizeof(int)*(m-1));
@@ -41,7 +41,7 @@ InternalNode *getInternalNode(int m) {
  * @param n: size of array
  * @param key: a key to search
  */
-int binarySearch(int K[], int n, int key) {
+static inline int binarySearch(int K[], int n, int key) {
   int i = 0,
       j = n-1;
 

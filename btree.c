@@ -14,7 +14,7 @@
  * getNode returns a new node.
  * @param m: fanout of B-tree
  */
-Node *getNode(int m) {
+static inline Node *getNode(int m) {
   Node *node  = malloc(sizeof(Node));
   node -> n   = 0;
   node -> K   = malloc(sizeof(int)*(m-1));
@@ -28,7 +28,7 @@ Node *getNode(int m) {
  * @param n: size of array
  * @param key: a key to search
  */
-int binarySearch(int K[], int n, int key) {
+static inline int binarySearch(int K[], int n, int key) {
   int i = 0,
       j = n-1;
   

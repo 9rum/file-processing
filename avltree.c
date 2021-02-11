@@ -15,7 +15,7 @@ extern inline int max(int a, int b) { return a < b ? b : a; }
 /**
  * getNode returns a new node.
  */
-Node *getNode() {
+static inline Node *getNode() {
   Node *node      = malloc(sizeof(Node));
   node -> height  = 1;
   node -> bf      = 0;
@@ -27,7 +27,7 @@ Node *getNode() {
  * height returns the height of T.
  * @param T: an AVL tree
  */
-int height(Tree T) { return T == NULL ? 0 : T -> height; }
+static inline int height(Tree T) { return T == NULL ? 0 : T -> height; }
 
 /**
  * rotateLL implements LL rotation in subtree rooted with x.
@@ -35,7 +35,7 @@ int height(Tree T) { return T == NULL ? 0 : T -> height; }
  * @param x: root node of subtree
  * @param f: parent node of x
  */
-void rotateLL(Tree *T, Node *x, Node *f) {
+static inline void rotateLL(Tree *T, Node *x, Node *f) {
   Node *l     = x -> left;
   x -> left   = l -> right;
   l -> right  = x;
@@ -66,7 +66,7 @@ void rotateLL(Tree *T, Node *x, Node *f) {
  * @param x: root node of subtree
  * @param f: parent node of x
  */
-void rotateRR(Tree *T, Node *x, Node *f) {
+static inline void rotateRR(Tree *T, Node *x, Node *f) {
   Node *r     = x -> right;
   x -> right  = r -> left;
   r -> left   = x;
@@ -97,7 +97,7 @@ void rotateRR(Tree *T, Node *x, Node *f) {
  * @param x: root node of subtree
  * @param f: parent node of x
  */
-void rotateLR(Tree *T, Node *x, Node *f) {
+static inline void rotateLR(Tree *T, Node *x, Node *f) {
   Node *l     = x -> left,
        *r     = l -> right;
   l -> right  = r -> left;
@@ -132,7 +132,7 @@ void rotateLR(Tree *T, Node *x, Node *f) {
  * @param x: root node of subtree
  * @param f: parent node of x
  */
-void rotateRL(Tree *T, Node *x, Node *f) {
+static inline void rotateRL(Tree *T, Node *x, Node *f) {
   Node *r     = x -> right,
        *l     = r -> left;
   x -> right  = l -> left;

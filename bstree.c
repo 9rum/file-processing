@@ -15,7 +15,7 @@ extern inline int max(int a, int b) { return a < b ? b : a; }
 /**
  * getNode returns a new node.
  */
-Node *getNode() {
+static inline Node *getNode() {
   Node *node      = malloc(sizeof(Node));
   node -> height  = 1;
   node -> left    = node -> right = NULL;
@@ -26,7 +26,7 @@ Node *getNode() {
  * height returns the height of T.
  * @param T: a binary search tree
  */
-int height(Tree T) { return T == NULL ? 0 : T -> height; }
+static inline int height(Tree T) { return T == NULL ? 0 : T -> height; }
 
 /**
  * insertBST inserts newKey into T.

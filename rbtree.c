@@ -13,7 +13,7 @@
 /**
  * getNode returns a new node.
  */
-Node *getNode() {
+static inline Node *getNode() {
   Node *node    = malloc(sizeof(Node));
   node -> color = RED;
   node -> left  = node -> right = NULL;
