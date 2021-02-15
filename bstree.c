@@ -29,21 +29,72 @@ static inline Node *getNode() {
 static inline int height(Tree T) { return T == NULL ? 0 : T -> height; }
 
 /**
+ * stack represents a stack.
+ * @see https://en.cppreference.com/w/cpp/container/stack
+ */
+typedef struct stack {
+  Node          *node;
+  struct stack  *next;
+} *stack;
+
+/**
+ * empty checks whether stack is empty.
+ * @param stack: a stack
+ */
+static inline bool empty(stack stack) { return stack == NULL; }
+
+/**
+ * top accesses the top element.
+ * @param stack: a stack
+ */
+static inline Node *top(stack stack) { return empty(stack) ? NULL : stack -> node; }
+
+/**
+ * push inserts element at the top.
+ * @param stack: a stack
+ * @param node: a node to push
+ */
+static inline void push(stack *stack, Node *node) {
+  struct stack *top = malloc(sizeof(struct stack));
+  top -> node       = node;
+  top -> next       = *stack;
+  *stack            = top;
+}
+
+/**
+ * pop removes the top element.
+ * @param stack: a stack
+ */
+static inline Node *pop(stack *stack) {
+  if (empty(*stack)) return NULL;
+  struct stack *top = *stack;
+  Node *node        = top -> node;
+  *stack            = top -> next;
+  free(top);
+  return node;
+}
+
+/**
+ * clear empties stack.
+ * @param stack: a stack
+ */
+static inline void clear(stack *stack) { while (!empty(*stack)) pop(stack); }
+
+/**
  * insertBST inserts newKey into T.
  * @param T: a binary search tree
  * @param newKey: a key to insert
  */
 void insertBST(Tree *T, int newKey) {
-  Node **stack  = malloc(sizeof(Node *)*height(*T)),
-       *p       = *T,
-       *q       = NULL;
-  int size      = 0;
+  Node *p     = *T,
+       *q     = NULL;
+  stack stack = NULL;
 
   while (p != NULL) {                                 /* step 1: find position q to insert newKey */
-    if  (newKey == p -> key) { free(stack); return; }
-    q             = p;
-    stack[size++] = q;
-    p             = newKey < p -> key ? p -> left : p -> right;
+    if  (newKey == p -> key) { clear(&stack); return; }
+    push(&stack, p);
+    q = p;
+    p = newKey < p -> key ? p -> left : p -> right;
   }
 
   Node *newNode   = getNode();                        /* step 2: make a node with newKey */
@@ -53,9 +104,7 @@ void insertBST(Tree *T, int newKey) {
   else if (newKey < q -> key) q -> left   = newNode;
   else                        q -> right  = newNode;
 
-  while (0 <= --size) stack[size] -> height = 1 + max(height(stack[size] -> left), height(stack[size] -> right));
-  
-  free(stack);
+  while (!empty(stack)) { p = pop(&stack); p -> height = 1 + max(height(p -> left), height(p -> right)); }
 }
 
 /**
@@ -64,28 +113,27 @@ void insertBST(Tree *T, int newKey) {
  * @param deleteKey: a key to delete
  */
 void deleteBST(Tree *T, int deleteKey) {
-  Node **stack  = malloc(sizeof(Node *)*height(*T)),
-       *p       = *T,
-       *q       = NULL;
-  int size      = 0;
+  Node *p     = *T,
+       *q     = NULL;
+  stack stack = NULL;
 
   while (p != NULL && deleteKey != p -> key) {
-    q             = p;
-    stack[size++] = q;
-    p             = deleteKey < p -> key ? p -> left : p -> right;
+    push(&stack, p);
+    q = p;
+    p = deleteKey < p -> key ? p -> left : p -> right;
   }
 
-  if (p == NULL) { free(stack); return; }
+  if (p == NULL) { clear(&stack); return; }
 
   if (p -> left != NULL && p -> right != NULL) {              /* case of degree 2 */
-    stack[size++] = p;
-    q             = p;
+    push(&stack, p);
+    q = p;
 
-    if (p -> left -> height <= p -> right -> height)  for (p = p -> right; p -> left != NULL; p = p -> left)  stack[size++] = p;
-    else                                              for (p = p -> left; p -> right != NULL; p = p -> right) stack[size++] = p;
+    if (p -> left -> height <= p -> right -> height)  for (p = p -> right; p -> left != NULL; p = p -> left)  push(&stack, p);
+    else                                              for (p = p -> left; p -> right != NULL; p = p -> right) push(&stack, p);
 
     q -> key  = p -> key;
-    q         = stack[size-1];
+    q         = top(stack);
   }
 
   if        (p -> left == NULL && p -> right == NULL) {       /* case of degree 0 */
@@ -104,10 +152,9 @@ void deleteBST(Tree *T, int deleteKey) {
     }
   }
 
-  while (0 <= --size) stack[size] -> height = 1 + max(height(stack[size] -> left), height(stack[size] -> right));
-
   free(p);
-  free(stack);
+
+  while (!empty(stack)) { p = pop(&stack); p -> height = 1 + max(height(p -> left), height(p -> right)); }
 }
 
 /**
