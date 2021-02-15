@@ -31,19 +31,19 @@ typedef Node *Tree;
  * @param T: a binary search tree
  * @param newKey: a key to insert
  */
-void insertBST(Tree *T, int newKey);
+void insertBST(Tree *T, const int newKey);
 
 /**
  * deleteBST deletes deleteKey from T.
  * @param T: a binary search tree
  * @param deleteKey: a key to delete
  */
-void deleteBST(Tree *T, int deleteKey);
+void deleteBST(Tree *T, const int deleteKey);
 
 /**
  * inorderBST implements inorder traversal in T.
  * @param T: a binary search tree
  */
-void inorderBST(Tree T);
+void inorderBST(const Tree T);
 
 #endif

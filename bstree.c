@@ -10,7 +10,7 @@
 
 #include "bstree.h"
 
-extern inline int max(int a, int b) { return a < b ? b : a; }
+extern inline int max(const int a, const int b) { return a < b ? b : a; }
 
 /**
  * getNode returns a new node.
@@ -26,7 +26,7 @@ static inline Node *getNode() {
  * height returns the height of T.
  * @param T: a binary search tree
  */
-static inline int height(Tree T) { return T == NULL ? 0 : T -> height; }
+static inline int height(const Tree T) { return T == NULL ? 0 : T -> height; }
 
 /**
  * stack represents a stack.
@@ -41,13 +41,13 @@ typedef struct stack {
  * empty checks whether stack is empty.
  * @param stack: a stack
  */
-static inline bool empty(stack stack) { return stack == NULL; }
+static inline bool empty(const stack stack) { return stack == NULL; }
 
 /**
  * top accesses the top element.
  * @param stack: a stack
  */
-static inline Node *top(stack stack) { return empty(stack) ? NULL : stack -> node; }
+static inline Node *top(const stack stack) { return empty(stack) ? NULL : stack -> node; }
 
 /**
  * push inserts element at the top.
@@ -66,7 +66,7 @@ static inline void push(stack *stack, Node *node) {
  * @param stack: a stack
  */
 static inline Node *pop(stack *stack) {
-  if (empty(*stack)) return NULL;
+  if (empty(*stack))  return NULL;
   struct stack *top = *stack;
   Node *node        = top -> node;
   *stack            = top -> next;
@@ -85,7 +85,7 @@ static inline void clear(stack *stack) { while (!empty(*stack)) pop(stack); }
  * @param T: a binary search tree
  * @param newKey: a key to insert
  */
-void insertBST(Tree *T, int newKey) {
+void insertBST(Tree *T, const int newKey) {
   Node *p     = *T,
        *q     = NULL;
   stack stack = NULL;
@@ -112,7 +112,7 @@ void insertBST(Tree *T, int newKey) {
  * @param T: a binary search tree
  * @param deleteKey: a key to delete
  */
-void deleteBST(Tree *T, int deleteKey) {
+void deleteBST(Tree *T, const int deleteKey) {
   Node *p     = *T,
        *q     = NULL;
   stack stack = NULL;
@@ -161,4 +161,4 @@ void deleteBST(Tree *T, int deleteKey) {
  * inorderBST implements inorder traversal in T.
  * @param T: a binary search tree
  */
-void inorderBST(Tree T) { if (T != NULL) { inorderBST(T -> left); printf("%d ", T -> key); inorderBST(T -> right); } }
+void inorderBST(const Tree T) { if (T != NULL) { inorderBST(T -> left); printf("%d ", T -> key); inorderBST(T -> right); } }
