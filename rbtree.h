@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 typedef enum color_t { RED, BLACK } color_t;
 
@@ -33,19 +34,19 @@ typedef Node *Tree;
  * @param T: a Red-black tree
  * @param newKey: a key to insert
  */
-void insertRB(Tree *T, int newKey);
+void insertRB(Tree *T, const int newKey);
 
 /**
  * deleteRB deletes deleteKey from T.
  * @param T: a Red-black tree
  * @param deleteKey: a key to delete
  */
-void deleteRB(Tree *T, int deleteKey);
+void deleteRB(Tree *T, const int deleteKey);
 
 /**
  * inorderRB implements inorder traversal in T.
  * @param T: a Red-black tree
  */
-void inorderRB(Tree T);
+void inorderRB(const Tree T);
 
 #endif
