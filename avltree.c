@@ -10,7 +10,7 @@
 
 #include "avltree.h"
 
-extern inline int max(int a, int b) { return a < b ? b : a; }
+extern inline int max(const int a, const int b) { return a < b ? b : a; }
 
 /**
  * getNode returns a new node.
@@ -27,7 +27,59 @@ static inline Node *getNode() {
  * height returns the height of T.
  * @param T: an AVL tree
  */
-static inline int height(Tree T) { return T == NULL ? 0 : T -> height; }
+static inline int height(const Tree T) { return T == NULL ? 0 : T -> height; }
+
+/**
+ * stack represents a stack.
+ * @see https://en.cppreference.com/w/cpp/container/stack
+ */
+typedef struct stack {
+  Node          *node;
+  struct stack  *next;
+} *stack;
+
+/**
+ * empty checks whether stack is empty.
+ * @param stack: a stack
+ */
+static inline bool empty(const stack stack) { return stack == NULL; }
+
+/**
+ * top accesses the top element.
+ * @param stack: a stack
+ */
+static inline Node *top(const stack stack) { return empty(stack) ? NULL : stack -> node; }
+
+/**
+ * push inserts element at the top.
+ * @param stack: a stack
+ * @param node: a node to push
+ */
+static inline void push(stack *stack, Node *node) {
+  struct stack *top = malloc(sizeof(struct stack));
+  top -> node       = node;
+  top -> next       = *stack;
+  *stack            = top;
+}
+
+/**
+ * pop removes the top element.
+ * @param stack: a stack
+ */
+static inline Node *pop(stack *stack) {
+  if (empty(*stack))  return NULL;
+  struct stack *top = *stack;
+  Node *node        = top -> node;
+  *stack            = top -> next;
+  free(top);
+  return node;
+}
+
+/**
+ * clear empties stack.
+ * @param stack: a stack
+ */
+static inline void clear(stack *stack) { while (!empty(*stack)) pop(stack); }
 
 /**
  * rotateLL implements LL rotation in subtree rooted with x.
@@ -42,22 +94,20 @@ static inline void rotateLL(Tree *T, Node *x, Node *f) {
   if      (f == NULL)       *T          = l;  /* case of root */
   else if (f -> left == x)  f -> left   = l;
   else                      f -> right  = l;
-  
-  Node **stack  = malloc(sizeof(Node *)*height(*T)),
-       *p       = *T;
-  int size      = 0;
+
+  Node *p     = *T;
+  stack stack = NULL;
 
   while (p != x -> left && p != x -> right) {
-    stack[size++] = p;
-    p             = x -> key < p -> key ? p -> left : p -> right;
+    push(&stack, p);
+    p = x -> key < p -> key ? p -> left : p -> right;
   }
-  
-  while (0 <= --size) {
-    stack[size] -> height = 1 + max(height(stack[size] -> left), height(stack[size] -> right));
-    stack[size] -> bf     = height(stack[size] -> left) - height(stack[size] -> right);
+
+  while (!empty(stack)) {
+    p           = pop(&stack);
+    p -> height = 1 + max(height(p -> left), height(p -> right));
+    p -> bf     = height(p -> left) - height(p -> right);
   }
-  
-  free(stack);
 }
 
 /**
@@ -74,21 +124,19 @@ static inline void rotateRR(Tree *T, Node *x, Node *f) {
   else if (f -> left == x)  f -> left   = r;
   else                      f -> right  = r;
 
-  Node **stack  = malloc(sizeof(Node *)*height(*T)),
-       *p       = *T;
-  int size      = 0;
-  
+  Node *p     = *T;
+  stack stack = NULL;
+
   while (p != x -> left && p != x -> right) {
-    stack[size++] = p;
-    p             = x -> key < p -> key ? p -> left : p -> right;
+    push(&stack, p);
+    p = x -> key < p -> key ? p -> left : p -> right;
   }
-  
-  while (0 <= --size) {
-    stack[size] -> height = 1 + max(height(stack[size] -> left), height(stack[size] -> right));
-    stack[size] -> bf     = height(stack[size] -> left) - height(stack[size] -> right);
+
+  while (!empty(stack)) {
+    p           = pop(&stack);
+    p -> height = 1 + max(height(p -> left), height(p -> right));
+    p -> bf     = height(p -> left) - height(p -> right);
   }
-  
-  free(stack);
 }
 
 /**
@@ -107,23 +155,21 @@ static inline void rotateLR(Tree *T, Node *x, Node *f) {
   if      (f == NULL)       *T          = r;  /* case of root */
   else if (f -> left == x)  f -> left   = r;
   else                      f -> right  = r;
-  
-  Node **stack  = malloc(sizeof(Node *)*(height(*T)+1)),
-       *p       = *T;
-  int size      = 0;
-  
+
+  Node *p     = *T;
+  stack stack = NULL;
+
   while (p != x -> left && p != x -> right) {
-    stack[size++] = p;
-    p             = x -> key < p -> key ? p -> left : p -> right;
+    push(&stack, p);
+    p = x -> key < p -> key ? p -> left : p -> right;
   }
-  stack[size++] = l;
-  
-  while (0 <= --size) {
-    stack[size] -> height = 1 + max(height(stack[size] -> left), height(stack[size] -> right));
-    stack[size] -> bf     = height(stack[size] -> left) - height(stack[size] -> right);
+  push(&stack, l);
+
+  while (!empty(stack)) {
+    p           = pop(&stack);
+    p -> height = 1 + max(height(p -> left), height(p ->right));
+    p -> bf     = height(p -> left) - height(p -> right);
   }
-  
-  free(stack);
 }
 
 /**
@@ -143,22 +189,20 @@ static inline void rotateRL(Tree *T, Node *x, Node *f) {
   else if (f -> left == x)  f -> left   = l;
   else                      f -> right  = l;
 
-  Node **stack  = malloc(sizeof(Node *)*(height(*T)+1)),
-       *p       = *T;
-  int size      = 0;
-  
+  Node *p     = *T;
+  stack stack = NULL;
+
   while (p != x -> left && p != x -> right) {
-    stack[size++] = p;
-    p             = x -> key < p -> key ? p -> left : p -> right;
+    push(&stack, p);
+    p = x -> key < p -> key ? p -> left : p -> right;
   }
-  stack[size++] = r;
-  
-  while (0 <= --size) {
-    stack[size] -> height = 1 + max(height(stack[size] -> left), height(stack[size] -> right));
-    stack[size] -> bf     = height(stack[size] -> left) - height(stack[size] -> right);
+  push(&stack, r);
+
+  while (!empty(stack)) {
+    p           = pop(&stack);
+    p -> height = 1 + max(height(p -> left), height(p -> right));
+    p -> bf     = height(p -> left) - height(p -> right);
   }
-  
-  free(stack);
 }
 
 /**
@@ -166,20 +210,20 @@ static inline void rotateRL(Tree *T, Node *x, Node *f) {
  * @param T: an AVL tree
  * @param newKey: a key to insert
  */
-void insertAVL(Tree *T, int newKey) {
-  Node **stack  = malloc(sizeof(Node *)*(height(*T)+1)),
-       *p       = *T,
-       *q       = NULL,
-       *x       = NULL,
-       *f       = NULL;
-  int size      = 0;
-  stack[size++] = NULL;
+void insertAVL(Tree *T, const int newKey) {
+  Node *p     = *T,
+       *q     = NULL,
+       *x     = NULL,
+       *f     = NULL;
+  stack stack = NULL;
+
+  push(&stack, NULL);
 
   while (p != NULL) {                               /* Phase 1: find position q to insert newKey */
-    if  (newKey == p -> key) { free(stack); return; }
-    q             = p;
-    stack[size++] = q;
-    p             = newKey < p -> key ? p -> left : p -> right;
+    if  (newKey == p -> key) { clear(&stack); return; }
+    push(&stack, p);
+    q = p;
+    p = newKey < p -> key ? p -> left : p -> right;
   }
 
   Node *y   = getNode();                            /* Phase 2: insert newKey as a child of q and rebalance */
@@ -188,14 +232,15 @@ void insertAVL(Tree *T, int newKey) {
   if      (*T == NULL)        *T          = y;
   else if (newKey < q -> key) q -> left   = y;
   else                        q -> right  = y;
-  
-  while (1 <= --size) {
-    stack[size] -> height = 1 + max(height(stack[size] -> left), height(stack[size] -> right));
-    stack[size] -> bf     = height(stack[size] -> left) - height(stack[size] -> right);
-    if (x == NULL && (1 < stack[size] -> bf || stack[size] -> bf < -1)) { x = stack[size]; f = stack[size-1]; }
+
+  while (top(stack) != NULL) {
+    p           = pop(&stack);
+    p -> height = 1 + max(height(p -> left), height(p -> right));
+    p -> bf     = height(p -> left) - height(p -> right);
+    if (x == NULL && (1 < p -> bf || p -> bf < -1)) { x = p; f = top(stack); }
   }
-  
-  free(stack);
+
+  clear(&stack);
 
   if (x == NULL) return;
 
@@ -213,32 +258,32 @@ void insertAVL(Tree *T, int newKey) {
  * @param T: an AVL tree
  * @param deleteKey: a key to delete
  */
-void deleteAVL(Tree *T, int deleteKey) {
-  Node **stack  = malloc(sizeof(Node *)*(height(*T)+1)),
-       *p       = *T,
-       *q       = NULL,
-       *x       = NULL,
-       *f       = NULL;
-  int size      = 0;
-  stack[size++] = NULL;
+void deleteAVL(Tree *T, const int deleteKey) {
+  Node *p     = *T,
+       *q     = NULL,
+       *x     = NULL,
+       *f     = NULL;
+  stack stack = NULL;
+
+  push(&stack, NULL);
 
   while (p != NULL && deleteKey != p -> key) {
-    q             = p;
-    stack[size++] = q;
-    p             = deleteKey < p -> key ? p -> left : p -> right;
+    push(&stack, p);
+    q = p;
+    p = deleteKey < p -> key ? p -> left : p -> right;
   }
 
-  if (p == NULL) { free(stack); return; }
+  if (p == NULL) { clear(&stack); return; }
 
   if (p -> left != NULL && p -> right != NULL) {              /* case of degree 2 */
-    stack[size++] = p;
-    q             = p;
+    push(&stack, p);
+    q = p;
 
-    if (p -> bf <= 0) for (p = p -> right; p -> left != NULL; p = p -> left)  stack[size++] = p;
-    else              for (p = p -> left; p -> right != NULL; p = p -> right) stack[size++] = p;
+    if (p -> bf <= 0) for (p = p -> right; p -> left != NULL; p = p -> left)  push(&stack, p);
+    else              for (p = p -> left; p -> right != NULL; p = p -> right) push(&stack, p);
 
     q -> key  = p -> key;
-    q         = stack[size-1];
+    q         = top(stack);
   }
 
   if        (p -> left == NULL && p -> right == NULL) {       /* case of degree 0 */
@@ -257,14 +302,16 @@ void deleteAVL(Tree *T, int deleteKey) {
     }
   }
 
-  while (1 <= --size) {
-    stack[size] -> height = 1 + max(height(stack[size] -> left), height(stack[size] -> right));
-    stack[size] -> bf     = height(stack[size] -> left) - height(stack[size] -> right);
-    if (x == NULL && (1 < stack[size] -> bf || stack[size] -> bf < -1)) { x = stack[size]; f = stack[size-1]; }
-  }
-  
   free(p);
-  free(stack);
+
+  while (top(stack) != NULL) {
+    p           = pop(&stack);
+    p -> height = 1 + max(height(p -> left), height(p -> right));
+    p -> bf     = height(p -> left) - height(p -> right);
+    if (x == NULL && (1 < p -> bf || p -> bf < -1)) { x = p; f = top(stack); }
+  }
+
+  clear(&stack);
 
   if (x == NULL) return;
 
@@ -281,4 +328,4 @@ void deleteAVL(Tree *T, int deleteKey) {
  * inorderAVL implements inorder traversal in T.
  * @param T: an AVL tree
  */
-void inorderAVL(Tree T) { if (T != NULL) { inorderAVL(T -> left); printf("%d ", T -> key); inorderAVL(T -> right); } }
+void inorderAVL(const Tree T) { if (T != NULL) { inorderAVL(T -> left); printf("%d ", T -> key); inorderAVL(T -> right); } }

@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 /**
  * Node represents a node in AVL tree.
@@ -30,19 +31,19 @@ typedef Node *Tree;
  * @param T: an AVL tree
  * @param newKey: a key to insert
  */
-void insertAVL(Tree *T, int newKey);
+void insertAVL(Tree *T, const int newKey);
 
 /**
  * deleteAVL deletes deleteKey from T.
  * @param T: an AVL tree
  * @param deleteKey: a key to delete
  */
-void deleteAVL(Tree *T, int deleteKey);
+void deleteAVL(Tree *T, const int deleteKey);
 
 /**
  * inorderAVL implements inorder traversal in T.
  * @param T: an AVL tree
  */
-void inorderAVL(Tree T);
+void inorderAVL(const Tree T);
 
 #endif
