@@ -9,8 +9,9 @@
  */
 
 #include "bstree.h"
+#include "stack.h"
 
-extern inline int max(const int a, const int b) { return a < b ? b : a; }
+static inline int max(const int a, const int b) { return a < b ? b : a; }
 
 /**
  * getNode returns a new node.
@@ -27,58 +28,6 @@ static inline Node *getNode() {
  * @param T: a binary search tree
  */
 static inline int height(const Tree T) { return T == NULL ? 0 : T -> height; }
-
-/**
- * stack represents a stack.
- * @see https://en.cppreference.com/w/cpp/container/stack
- */
-typedef struct stack {
-  Node          *node;
-  struct stack  *next;
-} *stack;
-
-/**
- * empty checks whether stack is empty.
- * @param stack: a stack
- */
-static inline bool empty(const stack stack) { return stack == NULL; }
-
-/**
- * top accesses the top element.
- * @param stack: a stack
- */
-static inline Node *top(const stack stack) { return empty(stack) ? NULL : stack -> node; }
-
-/**
- * push inserts element at the top.
- * @param stack: a stack
- * @param node: a node to push
- */
-static inline void push(stack *stack, Node *node) {
-  struct stack *top = malloc(sizeof(struct stack));
-  top -> node       = node;
-  top -> next       = *stack;
-  *stack            = top;
-}
-
-/**
- * pop removes the top element.
- * @param stack: a stack
- */
-static inline Node *pop(stack *stack) {
-  if (empty(*stack))  return NULL;
-  struct stack *top = *stack;
-  Node *node        = top -> node;
-  *stack            = top -> next;
-  free(top);
-  return node;
-}
-
-/**
- * clear empties stack.
- * @param stack: a stack
- */
-static inline void clear(stack *stack) { while (!empty(*stack)) pop(stack); }
 
 /**
  * insertBST inserts newKey into T.
