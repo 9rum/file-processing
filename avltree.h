@@ -12,8 +12,6 @@
 #define _AVLTREE_H
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 
 /**
  * Node represents a node in AVL tree.
