@@ -9,6 +9,7 @@
  */
 
 #include "rbtree.h"
+#include "stack.h"
 
 /**
  * getNode returns a new node.
@@ -19,58 +20,6 @@ static inline Node *getNode() {
   node -> left  = node -> right = NULL;
   return node;
 }
-
-/**
- * stack represents a stack.
- * @see https://en.cppreference.com/w/cpp/container/stack
- */
-typedef struct stack {
-  Node          *node;
-  struct stack  *next;
-} *stack;
-
-/**
- * empty checks whether stack is empty.
- * @param stack: a stack
- */
-static inline bool empty(const stack stack) { return stack == NULL; }
-
-/**
- * top accesses the top element.
- * @param stack: a stack
- */
-static inline Node *top(const stack stack) { return empty(stack) ? NULL : stack -> node; }
-
-/**
- * push inserts element at the top.
- * @param stack: a stack
- * @param node: a node to push
- */
-static inline void push(stack *stack, Node *node) {
-  struct stack *top = malloc(sizeof(struct stack));
-  top -> node       = node;
-  top -> next       = *stack;
-  *stack            = top;
-}
-
-/**
- * pop removes the top element.
- * @param stack: a stack
- */
-static inline Node *pop(stack *stack) {
-  if (empty(*stack))  return NULL;
-  struct stack *top = *stack;
-  Node *node        = top -> node;
-  *stack            = top -> next;
-  free(top);
-  return node;
-}
-
-/**
- * clear empties stack.
- * @param stack: a stack
- */
-static inline void clear(stack *stack) { while (!empty(*stack)) pop(stack); }
 
 /**
  * insertRB inserts newKey into T.
@@ -110,20 +59,22 @@ void insertRB(Tree *T, const int newKey) {
           g -> left   = p -> right;
           p -> right  = g;
           p -> color  = BLACK;
-          if    (!empty(stack)) {
-            if  (top(stack) -> left == g) top(stack) -> left  = p;
-            else                          top(stack) -> right = p;
-          } else                          *T                  = p;
+          if (!empty(stack)) {
+            Node *f = top(stack);
+            if (f -> left == g) f -> left   = p;
+            else                f -> right  = p;
+          } else                *T          = p;
         } else {
           p -> right  = n -> left;
           g -> left   = n -> right;
           n -> left   = p;
           n -> right  = g;
           n -> color  = BLACK;
-          if    (!empty(stack)) {
-            if  (top(stack) -> left == g) top(stack) -> left  = n;
-            else                          top(stack) -> right = n;
-          } else                          *T                  = n;
+          if (!empty(stack)) {
+            Node *f = top(stack);
+            if (f -> left == g) f -> left   = n;
+            else                f -> right  = n;
+          } else                *T          = n;
         }
       } else {
         if (p -> left == n) {
@@ -132,18 +83,20 @@ void insertRB(Tree *T, const int newKey) {
           n -> left   = g;
           n -> right  = p;
           n -> color  = BLACK;
-          if    (!empty(stack)) {
-            if  (top(stack) -> left == g) top(stack) -> left  = n;
-            else                          top(stack) -> right = n;
-          } else                          *T                  = n;
+          if (!empty(stack)) {
+            Node *f = top(stack);
+            if (f -> left == g) f -> left   = n;
+            else                f -> right  = n;
+          } else                *T          = n;
         } else {
           g -> right  = p -> left;
           p -> left   = g;
           p -> color  = BLACK;
-          if    (!empty(stack)) {
-            if  (top(stack) -> left == g) top(stack) -> left  = p;
-            else                          top(stack) -> right = p;
-          } else                          *T                  = p;
+          if (!empty(stack)) {
+            Node *f = top(stack);
+            if (f -> left == g) f -> left   = p;
+            else                f -> right  = p;
+          } else                *T          = p;
         }
       }
 
@@ -223,17 +176,19 @@ void deleteRB(Tree *T, const int deleteKey) {
       if (p -> left == x) {
         p -> right  = s -> left;
         s -> left   = p;
-        if    (!empty(stack)) {
-          if  (top(stack) -> left == p) top(stack) -> left  = s;
-          else                          top(stack) -> right = s;
-        } else                          *T                  = s;
+        if (!empty(stack)) {
+          Node *f = top(stack);
+          if (f -> left == p) f -> left   = s;
+          else                f -> right  = s;
+        } else                *T          = s;
       } else {
         p -> left   = s -> right;
         s -> right  = p;
-        if    (!empty(stack)) {
-          if  (top(stack) -> left == p) top(stack) -> left  = s;
-          else                          top(stack) -> right = s;
-        } else                          *T                  = s;
+        if (!empty(stack)) {
+          Node *f = top(stack);
+          if (f -> left == p) f -> left   = s;
+          else                f -> right  = s;
+        } else                *T          = s;
       }
 
       push(&stack, s);
@@ -265,16 +220,17 @@ void deleteRB(Tree *T, const int deleteKey) {
         p -> left           = s -> right;
         s -> right          = p;
       } else if (p -> right == s && s -> right != NULL && s -> right -> color == RED) { /* case of Right Right */
-        s -> color = p -> color;
-        p -> color = BLACK;
+        s -> color          = p -> color;
+        p -> color          = BLACK;
         s -> right -> color = BLACK;
-        p -> right = s -> left;
-        s -> left = p;
+        p -> right          = s -> left;
+        s -> left           = p;
       }
-      if    (!empty(stack)) {
-        if  (top(stack) -> left == p) top(stack) -> left  = s;
-        else                          top(stack) -> right = s;
-      } else                          *T                  = s;
+      if (!empty(stack)) {
+        Node *f = top(stack);
+        if (f -> left == p) f -> left   = s;
+        else                f -> right  = s;
+      } else                *T          = s;
 
       break;
     }
