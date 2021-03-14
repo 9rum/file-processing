@@ -12,7 +12,6 @@
 #define _BTREE_H
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 /**
@@ -32,7 +31,7 @@ typedef Node *Tree;
  * @param m: fanout of B-tree
  * @param newKey: a key to insert
  */
-void insertBT(Tree *T, int m, int newKey);
+void insertBT(Tree *T, const int m, const int newKey);
 
 /**
  * deleteBT deletes oldKey from T.
@@ -40,12 +39,12 @@ void insertBT(Tree *T, int m, int newKey);
  * @param m: fanout of B-tree
  * @param oldKey: a key to delete
  */
-void deleteBT(Tree *T, int m, int oldKey);
+void deleteBT(Tree *T, const int m, const int oldKey);
 
 /**
  * inorderBT implements inorder traversal in T.
  * @param T: a B-tree
  */
-void inorderBT(Tree T);
+void inorderBT(const Tree T);
 
 #endif
