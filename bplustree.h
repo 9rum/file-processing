@@ -12,7 +12,6 @@
 #define _BPLUSTREE_H
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 /**
@@ -43,7 +42,7 @@ typedef struct Tree {
  * @param m: fanout of B+-tree
  * @param newKey: a key to insert
  */
-void insertBPT(Tree *T, int m, int newKey);
+void insertBPT(Tree *T, const int m, const int newKey);
 
 /**
  * deleteBPT deletes oldKey from T.
@@ -51,12 +50,12 @@ void insertBPT(Tree *T, int m, int newKey);
  * @param m: fanout of B+-tree
  * @param oldKey: a key to delete
  */
-void deleteBPT(Tree *T, int m, int oldKey);
+void deleteBPT(Tree *T, const int m, const int oldKey);
 
 /**
  * traverseBPT implements sequential access in T.
  * @param T: a B+-tree
  */
-void traverseBPT(Tree T);
+void traverseBPT(const Tree T);
 
 #endif
