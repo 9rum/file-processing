@@ -8,8 +8,8 @@
  * Red-black tree implementation
  */
 
-#include "rbtree.h"
 #include "stack.h"
+#include "rbtree.h"
 
 /**
  * getNode returns a new node.

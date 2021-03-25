@@ -8,14 +8,14 @@
  * B-tree implementation
  */
 
-#include "btree.h"
 #include "stack.h"
+#include "btree.h"
 
 /**
  * getNode returns a new node.
  * @param m: fanout of B-tree
  */
-static inline Node *getNode(const int m) {
+static inline Node *getNode(const unsigned int m) {
   Node *node  = malloc(sizeof(Node));
   node -> n   = 0;
   node -> K   = malloc(sizeof(int)*(m-1));
@@ -29,12 +29,12 @@ static inline Node *getNode(const int m) {
  * @param n: size of array
  * @param key: a key to search
  */
-static inline int binarySearch(const int *K, const int n, const int key) {
+static inline unsigned int binarySearch(const int *K, const unsigned int n, const int key) {
   int i = 0,
       j = n-1;
 
   while (i <= j) {
-    int mid = i + (j-i)/2;
+    unsigned int mid = i+j>>1;
     if      (key == K[mid]) return mid;
     else if (key < K[mid])  j = mid-1;
     else                    i = mid+1;
@@ -49,7 +49,7 @@ static inline int binarySearch(const int *K, const int n, const int key) {
  * @param m: fanout of B-tree
  * @param newKey: a key to insert
  */
-void insertBT(Tree *T, const int m, const int newKey) {
+void insertBT(Tree *T, const unsigned int m, const int newKey) {
   Node *x       = *T,
        *y       = NULL;
   stack stack   = NULL,
@@ -57,7 +57,7 @@ void insertBT(Tree *T, const int m, const int newKey) {
   int key       = newKey;
 
   while (x != NULL) {         /* find position to insert newKey while storing x on the stack */
-    int i = binarySearch(x -> K, x -> n, newKey);
+    unsigned int i = binarySearch(x -> K, x -> n, newKey);
     if (i < x -> n && newKey == x -> K[i]) { clear(&stack); clear(&iStack); return; }
     push(&stack, x);
     push(&iStack, i);
@@ -65,8 +65,8 @@ void insertBT(Tree *T, const int m, const int newKey) {
   }
 
   while (!empty(stack)) {
-    x     = pop(&stack);
-    int i = pop(&iStack);
+    x               = pop(&stack);
+    unsigned int i  = pop(&iStack);
 
     if (x -> n < m-1) {
       memcpy(&x -> K[i+1], &x -> K[i], sizeof(int)*(x -> n-i));
@@ -87,13 +87,13 @@ void insertBT(Tree *T, const int m, const int newKey) {
     tempNode -> P[i+1]  = y;
 
     y = getNode(m);
-    memcpy(x -> K, tempNode -> K, sizeof(int)*(m/2));
-    memcpy(x -> P, tempNode -> P, sizeof(Node *)*(m/2+1));
-    memcpy(y -> K, &tempNode -> K[m/2+1], sizeof(int)*(m-m/2-1));
-    memcpy(y -> P, &tempNode -> P[m/2+1], sizeof(Node *)*(m-m/2));
-    x -> n  = m/2;
-    y -> n  = m-m/2-1;
-    key     = tempNode -> K[m/2];
+    memcpy(x -> K, tempNode -> K, sizeof(int)*(m>>1));
+    memcpy(x -> P, tempNode -> P, sizeof(Node *)*((m>>1)+1));
+    memcpy(y -> K, &tempNode -> K[(m>>1)+1], sizeof(int)*(m-(m>>1)-1));
+    memcpy(y -> P, &tempNode -> P[(m>>1)+1], sizeof(Node *)*(m-(m>>1)));
+    x -> n  = m>>1;
+    y -> n  = m-(m>>1)-1;
+    key     = tempNode -> K[m>>1];
 
     free(tempNode);
   }
@@ -114,13 +114,13 @@ void insertBT(Tree *T, const int m, const int newKey) {
  * @param m: fanout of B-tree
  * @param oldKey: a key to delete
  */
-void deleteBT(Tree *T, const int m, const int oldKey) {
+void deleteBT(Tree *T, const unsigned int m, const int oldKey) {
   Node *x       = *T;
   stack stack   = NULL,
         iStack  = NULL;
 
   while (x != NULL) {                                                                                       /* find position of oldKey while storing x on the stack */
-    int i = binarySearch(x -> K, x -> n, oldKey);
+    unsigned int i = binarySearch(x -> K, x -> n, oldKey);
     push(&stack, x);
     push(&iStack, i);
     if (i < x -> n && oldKey == x -> K[i]) break;
@@ -130,7 +130,7 @@ void deleteBT(Tree *T, const int m, const int oldKey) {
   if (x == NULL) { clear(&stack); clear(&iStack); return; }
 
   Node *internalNode  = pop(&stack);
-  int i               = pop(&iStack);
+  unsigned int i      = pop(&iStack);
 
   if (x -> P[i+1] != NULL) {                                                                                /* found in internal node */
     push(&stack, x);
@@ -155,14 +155,14 @@ void deleteBT(Tree *T, const int m, const int oldKey) {
   memcpy(&x -> K[i], &x -> K[i+1], sizeof(int)*(x -> n-i));
 
   while (!empty(stack)) {
-    if  ((m-1)/2 <= x -> n) { clear(&stack); clear(&iStack); return; }
+    if  (m-1>>1 <= x -> n) { clear(&stack); clear(&iStack); return; }
 
     Node *y           = pop(&stack);
     i                 = pop(&iStack);
-    int b             = i == 0 ? i+1 : i == y -> n ? i-1 : y -> P[i-1] -> n < y -> P[i+1] -> n ? i+1 : i-1; /* choose bestSibling of x node */
+    unsigned int b    = i == 0 ? i+1 : i == y -> n ? i-1 : y -> P[i-1] -> n < y -> P[i+1] -> n ? i+1 : i-1; /* choose bestSibling of x node */
     Node *bestSibling = y -> P[b];
 
-    if    ((m-1)/2 < bestSibling -> n) {                                                                    /* case of key redistribution */
+    if    (m-1>>1 < bestSibling -> n) {                                                                     /* case of key redistribution */
       if  (b < i) {
         memcpy(&x -> K[1], x -> K, sizeof(int)*x -> n);
         memcpy(&x -> P[1], x -> P, sizeof(Node *)*(x -> n+1));
@@ -213,4 +213,4 @@ void deleteBT(Tree *T, const int m, const int oldKey) {
  * inorderBT implements inorder traversal in T.
  * @param T: a B-tree
  */
-void inorderBT(const Tree T) { if (T != NULL) { for (int i=0; i<T -> n; i++) { inorderBT(T -> P[i]); printf("%d ", T -> K[i]); } inorderBT(T -> P[T -> n]); } }
+void inorderBT(const Tree T) { if (T != NULL) { for (unsigned int i=0; i<T -> n; i++) { inorderBT(T -> P[i]); printf("%d ", T -> K[i]); } inorderBT(T -> P[T -> n]); } }

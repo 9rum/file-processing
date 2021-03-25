@@ -19,8 +19,9 @@
  * @see https://infolab.usc.edu/csci585/Spring2010/den_ar/indexing.pdf
  */
 typedef struct Node {
-  int         n,  *K;
-  struct Node **P;
+  int           *K;
+  unsigned int  n;
+  struct Node   **P;
 } Node;
 
 typedef Node *Tree;
@@ -31,7 +32,7 @@ typedef Node *Tree;
  * @param m: fanout of B-tree
  * @param newKey: a key to insert
  */
-void insertBT(Tree *T, const int m, const int newKey);
+void insertBT(Tree *T, const unsigned int m, const int newKey);
 
 /**
  * deleteBT deletes oldKey from T.
@@ -39,7 +40,7 @@ void insertBT(Tree *T, const int m, const int newKey);
  * @param m: fanout of B-tree
  * @param oldKey: a key to delete
  */
-void deleteBT(Tree *T, const int m, const int oldKey);
+void deleteBT(Tree *T, const unsigned int m, const int oldKey);
 
 /**
  * inorderBT implements inorder traversal in T.

@@ -8,14 +8,14 @@
  * B+-tree implementation
  */
 
-#include "bplustree.h"
 #include "stack.h"
+#include "bplustree.h"
 
 /**
  * getTerminalNode returns a new terminal node.
  * @param m: fanout of B+-tree
  */
-static inline TerminalNode *getTerminalNode(const int m) {
+static inline TerminalNode *getTerminalNode(const unsigned int m) {
   TerminalNode *node  = malloc(sizeof(TerminalNode));
   node -> q           = 0;
   node -> K           = malloc(sizeof(int)*m);
@@ -27,7 +27,7 @@ static inline TerminalNode *getTerminalNode(const int m) {
  * getInternalNode returns a new internal node.
  * @param m: fanout of B+-tree
  */
-static inline InternalNode *getInternalNode(const int m) {
+static inline InternalNode *getInternalNode(const unsigned int m) {
   InternalNode *node  = malloc(sizeof(InternalNode));
   node -> n           = 0;
   node -> K           = malloc(sizeof(int)*(m-1));
@@ -42,12 +42,12 @@ static inline InternalNode *getInternalNode(const int m) {
  * @param n: size of array
  * @param key: a key to search
  */
-static inline int binarySearch(const int *K, const int n, const int key) {
+static inline unsigned int binarySearch(const int *K, const unsigned int n, const int key) {
   int i = 0,
       j = n-1;
 
   while (i <= j) {
-    int mid = i + (j-i)/2;
+    unsigned int mid = i+j>>1;
     if      (key == K[mid]) return mid;
     else if (key < K[mid])  j = mid-1;
     else                    i = mid+1;
@@ -62,7 +62,7 @@ static inline int binarySearch(const int *K, const int n, const int key) {
  * @param m: fanout of B+-tree
  * @param newKey: a key to insert
  */
-void insertBPT(Tree *T, const int m, const int newKey) {
+void insertBPT(Tree *T, const unsigned int m, const int newKey) {
   if (*T == NULL) {
     *T                  = malloc(sizeof(struct Tree));
     (*T) -> IndexSet    = NULL;
@@ -77,7 +77,7 @@ void insertBPT(Tree *T, const int m, const int newKey) {
   int key         = newKey;
 
   while (x != NULL) {                             /* find position to insert newKey while storing x on the stack */
-    int i = binarySearch(x -> K, x -> n, newKey);
+    unsigned int i = binarySearch(x -> K, x -> n, newKey);
     push(&stack, x);
     push(&iStack, i);
     if (x -> Pi != NULL)  { x = x -> Pi[i]; }
@@ -93,7 +93,7 @@ void insertBPT(Tree *T, const int m, const int newKey) {
     return;
   }
 
-  int i = binarySearch(z -> K, z -> q, newKey);
+  unsigned int i = binarySearch(z -> K, z -> q, newKey);
   if (i < z -> q && newKey == z -> K[i]) { clear(&stack); clear(&iStack); return; }
 
   if (z -> q < m) {
@@ -111,10 +111,10 @@ void insertBPT(Tree *T, const int m, const int newKey) {
   memcpy(&TempNode -> K[i+1], &z -> K[i], sizeof(int)*(z -> q-i));
   TempNode -> K[i] = key;
 
-  memcpy(z -> K, TempNode -> K, sizeof(int)*((m+1)/2));
-  memcpy(newNode -> K, &TempNode -> K[(m+1)/2], sizeof(int)*(m/2+1));
-  z -> q        = (m+1)/2;
-  newNode -> q  = m/2+1;
+  memcpy(z -> K, TempNode -> K, sizeof(int)*(m+1>>1));
+  memcpy(newNode -> K, &TempNode -> K[(m+1)/2], sizeof(int)*((m>>1)+1));
+  z -> q        = m+1>>1;
+  newNode -> q  = (m>>1)+1;
   key           = z -> K[z -> q-1];
   newNode -> P  = z -> P;
   z -> P        = newNode;
@@ -158,13 +158,13 @@ void insertBPT(Tree *T, const int m, const int newKey) {
 
   y       = getInternalNode(m);
   y -> Pt = calloc(m, sizeof(TerminalNode *));
-  memcpy(x -> K, tempNode -> K, sizeof(int)*(m/2));
-  memcpy(x -> Pt, tempNode -> Pt, sizeof(TerminalNode *)*(m/2+1));
-  memcpy(y -> K, &tempNode -> K[m/2+1], sizeof(int)*(m-m/2-1));
-  memcpy(y -> Pt, &tempNode -> Pt[m/2+1], sizeof(TerminalNode *)*(m-m/2));
-  x -> n  = m/2;
-  y -> n  = m-m/2-1;
-  key     = tempNode -> K[m/2];
+  memcpy(x -> K, tempNode -> K, sizeof(int)*(m>>1));
+  memcpy(x -> Pt, tempNode -> Pt, sizeof(TerminalNode *)*((m>>1)+1));
+  memcpy(y -> K, &tempNode -> K[m/2+1], sizeof(int)*(m-(m>>1)-1));
+  memcpy(y -> Pt, &tempNode -> Pt[m/2+1], sizeof(TerminalNode *)*(m-(m>>1)));
+  x -> n  = m>>1;
+  y -> n  = m-(m>>1)-1;
+  key     = tempNode -> K[m>>1];
 
   free(tempNode);
 
@@ -194,13 +194,13 @@ void insertBPT(Tree *T, const int m, const int newKey) {
 
     y       = getInternalNode(m);
     y -> Pi = calloc(m, sizeof(InternalNode *));
-    memcpy(x -> K, tempNode -> K, sizeof(int)*(m/2));
-    memcpy(x -> Pi, tempNode -> Pi, sizeof(InternalNode *)*(m/2+1));
-    memcpy(y -> K, &tempNode -> K[m/2+1], sizeof(int)*(m-m/2-1));
-    memcpy(y -> Pi, &tempNode -> Pi[m/2+1], sizeof(InternalNode *)*(m-m/2));
-    x -> n  = m/2;
-    y -> n  = m-m/2-1;
-    key     = tempNode -> K[m/2];
+    memcpy(x -> K, tempNode -> K, sizeof(int)*(m>>1));
+    memcpy(x -> Pi, tempNode -> Pi, sizeof(InternalNode *)*((m>>1)+1));
+    memcpy(y -> K, &tempNode -> K[m/2+1], sizeof(int)*(m-(m>>1)-1));
+    memcpy(y -> Pi, &tempNode -> Pi[m/2+1], sizeof(InternalNode *)*(m-(m>>1)));
+    x -> n  = m>>1;
+    y -> n  = m-(m>>1)-1;
+    key     = tempNode -> K[m>>1];
 
     free(tempNode);
   }
@@ -222,7 +222,7 @@ void insertBPT(Tree *T, const int m, const int newKey) {
  * @param m: fanout of B+-tree
  * @param oldKey: a key to delete
  */
-void deleteBPT(Tree *T, const int m, const int oldKey) {
+void deleteBPT(Tree *T, const unsigned int m, const int oldKey) {
   if (*T == NULL) return;
 
   InternalNode *x = (*T) -> IndexSet,
@@ -232,20 +232,20 @@ void deleteBPT(Tree *T, const int m, const int oldKey) {
         iStack    = NULL;
 
   while (x != NULL) {                                                                                               /* find position of oldKey while storing x on the stack */
-    int i = binarySearch(x -> K, x -> n, oldKey);
+    unsigned int i = binarySearch(x -> K, x -> n, oldKey);
     push(&stack, x);
     push(&iStack, i);
     if (x -> Pi != NULL)  { x = x -> Pi[i]; }
     else                  { z = x -> Pt[i]; x = NULL; }
   }
 
-  int i = binarySearch(z -> K, z -> q, oldKey);
+  unsigned int i = binarySearch(z -> K, z -> q, oldKey);
   if (i < z -> q && oldKey != z -> K[i] || z -> q <= i) { clear(&stack); clear(&iStack); return; }
 
   z -> q--;
   memcpy(&z -> K[i], &z -> K[i+1], sizeof(int)*(z -> q-i));
 
-  if ((m+1)/2 <= z -> q) { clear(&stack); clear(&iStack); return; }
+  if (m+1>>1 <= z -> q) { clear(&stack); clear(&iStack); return; }
 
   if    (empty(stack)) {
     if  (z -> q == 0) { (*T) -> SequenceSet = NULL; *T = NULL; free(z); }
@@ -256,10 +256,10 @@ void deleteBPT(Tree *T, const int m, const int oldKey) {
 
   x                         = pop(&stack);
   i                         = pop(&iStack);
-  int b                     = i == 0 ? i+1 : i == x -> n ? i-1 : x -> Pt[i-1] -> q < x -> Pt[i+1] -> q ? i+1 : i-1; /* choose bestSibling of z node */
+  unsigned int b            = i == 0 ? i+1 : i == x -> n ? i-1 : x -> Pt[i-1] -> q < x -> Pt[i+1] -> q ? i+1 : i-1; /* choose bestSibling of z node */
   TerminalNode *BestSibling = x -> Pt[b];
 
-  if    ((m+1)/2 < BestSibling -> q) {                                                                              /* case of key redistribution */
+  if    (m+1>>1 < BestSibling -> q) {                                                                               /* case of key redistribution */
     if  (b < i) {
       memcpy(&z -> K[1], z -> K, sizeof(int)*z -> q);
       z -> K[0]   = BestSibling -> K[BestSibling -> q-1];
@@ -294,7 +294,7 @@ void deleteBPT(Tree *T, const int m, const int oldKey) {
   x -> Pt[x -> n] = NULL;
   x -> n--;
 
-  if    ((m-1)/2 <= x -> n) { clear(&stack); clear(&iStack); return; }
+  if    (m-1>>1 <= x -> n) { clear(&stack); clear(&iStack); return; }
   if    (empty(stack)) {
     if  (x -> n == 0) { (*T) -> IndexSet = NULL; free(x); }
     clear(&stack);
@@ -307,7 +307,7 @@ void deleteBPT(Tree *T, const int m, const int oldKey) {
   b                         = i == 0 ? i+1 : i == y -> n ? i-1 : y -> Pi[i-1] -> n < y -> Pi[i+1] -> n ? i+1 : i-1; /* choose bestSibling of x node */
   InternalNode *bestSibling = y -> Pi[b];
 
-  if    ((m-1)/2 < bestSibling -> n) {                                                                              /* case of key redistribution */
+  if    (m-1>>1 < bestSibling -> n) {                                                                               /* case of key redistribution */
     if  (b < i) {
       memcpy(&x -> K[1], x -> K, sizeof(int)*x -> n);
       memcpy(&x -> Pt[1], x -> Pt, sizeof(TerminalNode *)*(x -> n+1));
@@ -351,14 +351,14 @@ void deleteBPT(Tree *T, const int m, const int oldKey) {
   x = y;
 
   while (!empty(stack)) {
-    if  ((m-1)/2 <= x -> n) { clear(&stack); clear(&iStack); return; }
+    if  (m-1>>1 <= x -> n) { clear(&stack); clear(&iStack); return; }
 
     y           = pop(&stack);
     i           = pop(&iStack);
     b           = i == 0 ? i+1 : i == y -> n ? i-1 : y -> Pi[i-1] -> n < y -> Pi[i+1] -> n ? i+1 : i-1;             /* choose bestSibling of x node */
     bestSibling = y -> Pi[b];
 
-    if    ((m-1)/2 < bestSibling -> n) {                                                                            /* case of key redistribution */
+    if    (m-1>>1 < bestSibling -> n) {                                                                             /* case of key redistribution */
       if  (b < i) {
         memcpy(&x -> K[1], x -> K, sizeof(int)*x -> n);
         memcpy(&x -> Pi[1], x -> Pi, sizeof(InternalNode *)*(x -> n+1));
@@ -410,4 +410,4 @@ void deleteBPT(Tree *T, const int m, const int oldKey) {
  * traverseBPT implements sequential access in T.
  * @param T: a B+-tree
  */
-void traverseBPT(const Tree T) { if (T != NULL) { for (TerminalNode *node = T -> SequenceSet; node != NULL; node = node -> P) { for (int i=0; i<node -> q; i++) { printf("%d ", node -> K[i]); } } } }
+void traverseBPT(const Tree T) { if (T != NULL) { for (TerminalNode *node = T -> SequenceSet; node != NULL; node = node -> P) { for (unsigned int i=0; i<node -> q; i++) { printf("%d ", node -> K[i]); } } } }

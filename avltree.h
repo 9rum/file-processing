@@ -18,8 +18,9 @@
  * @see https://zhjwpku.com/assets/pdf/AED2-10-avl-paper.pdf
  */
 typedef struct Node {
-  int         key,    height, bf;
-  struct Node *left,  *right;
+  int           key,  bf;
+  unsigned int  height;
+  struct Node   *left,  *right;
 } Node;
 
 typedef Node *Tree;

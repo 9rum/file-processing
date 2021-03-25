@@ -8,10 +8,10 @@
  * AVL tree implementation
  */
 
-#include "avltree.h"
 #include "stack.h"
+#include "avltree.h"
 
-static inline int max(const int a, const int b) { return a < b ? b : a; }
+static inline unsigned int max(const unsigned int a, const unsigned int b) { return a < b ? b : a; }
 
 /**
  * getNode returns a new node.
@@ -28,7 +28,7 @@ static inline Node *getNode() {
  * height returns the height of T.
  * @param T: an AVL tree
  */
-static inline int height(const Tree T) { return T == NULL ? 0 : T -> height; }
+static inline unsigned int height(const Tree T) { return T == NULL ? 0 : T -> height; }
 
 /**
  * rotateLL implements LL rotation in subtree rooted with x.
