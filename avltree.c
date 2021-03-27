@@ -44,8 +44,8 @@ static inline void rotateLL(Tree *T, Node *x, Node *f) {
   else if (f -> left == x)  f -> left   = l;
   else                      f -> right  = l;
 
-  Node *p     = *T;
-  stack stack = NULL;
+  register Node *p  = *T;
+  stack stack       = NULL;
 
   while (p != x -> left && p != x -> right) {
     push(&stack, p);
@@ -73,8 +73,8 @@ static inline void rotateRR(Tree *T, Node *x, Node *f) {
   else if (f -> left == x)  f -> left   = r;
   else                      f -> right  = r;
 
-  Node *p     = *T;
-  stack stack = NULL;
+  register Node *p  = *T;
+  stack stack       = NULL;
 
   while (p != x -> left && p != x -> right) {
     push(&stack, p);
@@ -105,8 +105,8 @@ static inline void rotateLR(Tree *T, Node *x, Node *f) {
   else if (f -> left == x)  f -> left   = r;
   else                      f -> right  = r;
 
-  Node *p     = *T;
-  stack stack = NULL;
+  register Node *p  = *T;
+  stack stack       = NULL;
 
   while (p != x -> left && p != x -> right) {
     push(&stack, p);
@@ -138,8 +138,8 @@ static inline void rotateRL(Tree *T, Node *x, Node *f) {
   else if (f -> left == x)  f -> left   = l;
   else                      f -> right  = l;
 
-  Node *p     = *T;
-  stack stack = NULL;
+  register Node *p  = *T;
+  stack stack       = NULL;
 
   while (p != x -> left && p != x -> right) {
     push(&stack, p);
@@ -160,11 +160,11 @@ static inline void rotateRL(Tree *T, Node *x, Node *f) {
  * @param newKey: a key to insert
  */
 void insertAVL(Tree *T, const int newKey) {
-  Node *p     = *T,
-       *q     = NULL,
-       *x     = NULL,
-       *f     = NULL;
-  stack stack = NULL;
+  register Node *p  = *T,
+                *q  = NULL,
+                *x  = NULL;
+  Node *f           = NULL;
+  stack stack       = NULL;
 
   push(&stack, NULL);
 
@@ -208,11 +208,11 @@ void insertAVL(Tree *T, const int newKey) {
  * @param deleteKey: a key to delete
  */
 void deleteAVL(Tree *T, const int deleteKey) {
-  Node *p     = *T,
-       *q     = NULL,
-       *x     = NULL,
-       *f     = NULL;
-  stack stack = NULL;
+  register Node *p  = *T,
+                *q  = NULL,
+                *x  = NULL;
+  Node *f           = NULL;
+  stack stack       = NULL;
 
   push(&stack, NULL);
 

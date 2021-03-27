@@ -35,9 +35,9 @@ static inline unsigned int binarySearch(const int *K, const unsigned int n, cons
 
   while (i <= j) {
     unsigned int mid = i+j>>1;
-    if      (key == K[mid]) return mid;
-    else if (key < K[mid])  j = mid-1;
-    else                    i = mid+1;
+    if (key == K[mid])  return mid;
+    if (key < K[mid])   j = mid-1;
+    else                i = mid+1;
   }
 
   return i;
@@ -50,11 +50,11 @@ static inline unsigned int binarySearch(const int *K, const unsigned int n, cons
  * @param newKey: a key to insert
  */
 void insertBT(Tree *T, const unsigned int m, const int newKey) {
-  Node *x       = *T,
-       *y       = NULL;
-  stack stack   = NULL,
-        iStack  = NULL;
-  int key       = newKey;
+  register Node *x  = *T,
+                *y  = NULL;
+  stack stack       = NULL,
+        iStack      = NULL;
+  register int key  = newKey;
 
   while (x != NULL) {         /* find position to insert newKey while storing x on the stack */
     unsigned int i = binarySearch(x -> K, x -> n, newKey);
@@ -115,9 +115,9 @@ void insertBT(Tree *T, const unsigned int m, const int newKey) {
  * @param oldKey: a key to delete
  */
 void deleteBT(Tree *T, const unsigned int m, const int oldKey) {
-  Node *x       = *T;
-  stack stack   = NULL,
-        iStack  = NULL;
+  register Node *x  = *T;
+  stack stack       = NULL,
+        iStack      = NULL;
 
   while (x != NULL) {                                                                                       /* find position of oldKey while storing x on the stack */
     unsigned int i = binarySearch(x -> K, x -> n, oldKey);
@@ -129,8 +129,8 @@ void deleteBT(Tree *T, const unsigned int m, const int oldKey) {
 
   if (x == NULL) { clear(&stack); clear(&iStack); return; }
 
-  Node *internalNode  = pop(&stack);
-  unsigned int i      = pop(&iStack);
+  Node *internalNode      = pop(&stack);
+  register unsigned int i = pop(&iStack);
 
   if (x -> P[i+1] != NULL) {                                                                                /* found in internal node */
     push(&stack, x);
@@ -213,4 +213,4 @@ void deleteBT(Tree *T, const unsigned int m, const int oldKey) {
  * inorderBT implements inorder traversal in T.
  * @param T: a B-tree
  */
-void inorderBT(const Tree T) { if (T != NULL) { for (unsigned int i=0; i<T -> n; i++) { inorderBT(T -> P[i]); printf("%d ", T -> K[i]); } inorderBT(T -> P[T -> n]); } }
+void inorderBT(const Tree T) { if (T != NULL) { for (unsigned int i=0; i<T -> n; ++i) { inorderBT(T -> P[i]); printf("%d ", T -> K[i]); } inorderBT(T -> P[T -> n]); } }

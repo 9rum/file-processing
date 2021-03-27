@@ -48,9 +48,9 @@ static inline unsigned int binarySearch(const int *K, const unsigned int n, cons
 
   while (i <= j) {
     unsigned int mid = i+j>>1;
-    if      (key == K[mid]) return mid;
-    else if (key < K[mid])  j = mid-1;
-    else                    i = mid+1;
+    if (key == K[mid])  return mid;
+    if (key < K[mid])   j = mid-1;
+    else                i = mid+1;
   }
 
   return i;
@@ -69,12 +69,12 @@ void insertBPT(Tree *T, const unsigned int m, const int newKey) {
     (*T) -> SequenceSet = NULL;
   }
 
-  InternalNode *x = (*T) -> IndexSet,
-               *y = NULL;
-  TerminalNode *z = (*T) -> SequenceSet;
-  stack stack     = NULL,
-        iStack    = NULL;
-  int key         = newKey;
+  register InternalNode *x  = (*T) -> IndexSet,
+                        *y  = NULL;
+  TerminalNode *z           = (*T) -> SequenceSet;
+  stack stack               = NULL,
+        iStack              = NULL;
+  register int key          = newKey;
 
   while (x != NULL) {                             /* find position to insert newKey while storing x on the stack */
     unsigned int i = binarySearch(x -> K, x -> n, newKey);
@@ -93,7 +93,7 @@ void insertBPT(Tree *T, const unsigned int m, const int newKey) {
     return;
   }
 
-  unsigned int i = binarySearch(z -> K, z -> q, newKey);
+  register unsigned int i = binarySearch(z -> K, z -> q, newKey);
   if (i < z -> q && newKey == z -> K[i]) { clear(&stack); clear(&iStack); return; }
 
   if (z -> q < m) {
@@ -225,11 +225,11 @@ void insertBPT(Tree *T, const unsigned int m, const int newKey) {
 void deleteBPT(Tree *T, const unsigned int m, const int oldKey) {
   if (*T == NULL) return;
 
-  InternalNode *x = (*T) -> IndexSet,
-               *y = NULL;
-  TerminalNode *z = (*T) -> SequenceSet;
-  stack stack     = NULL,
-        iStack    = NULL;
+  register InternalNode *x  = (*T) -> IndexSet,
+                        *y  = NULL;
+  TerminalNode *z           = (*T) -> SequenceSet;
+  stack stack               = NULL,
+        iStack              = NULL;
 
   while (x != NULL) {                                                                                               /* find position of oldKey while storing x on the stack */
     unsigned int i = binarySearch(x -> K, x -> n, oldKey);
@@ -239,7 +239,7 @@ void deleteBPT(Tree *T, const unsigned int m, const int oldKey) {
     else                  { z = x -> Pt[i]; x = NULL; }
   }
 
-  unsigned int i = binarySearch(z -> K, z -> q, oldKey);
+  register unsigned int i = binarySearch(z -> K, z -> q, oldKey);
   if (i < z -> q && oldKey != z -> K[i] || z -> q <= i) { clear(&stack); clear(&iStack); return; }
 
   z -> q--;
@@ -410,4 +410,4 @@ void deleteBPT(Tree *T, const unsigned int m, const int oldKey) {
  * traverseBPT implements sequential access in T.
  * @param T: a B+-tree
  */
-void traverseBPT(const Tree T) { if (T != NULL) { for (TerminalNode *node = T -> SequenceSet; node != NULL; node = node -> P) { for (unsigned int i=0; i<node -> q; i++) { printf("%d ", node -> K[i]); } } } }
+void traverseBPT(const Tree T) { if (T != NULL) { for (TerminalNode *node = T -> SequenceSet; node != NULL; node = node -> P) { for (unsigned int i=0; i<node -> q; ++i) { printf("%d ", node -> K[i]); } } } }

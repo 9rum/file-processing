@@ -35,9 +35,9 @@ static inline unsigned int height(const Tree T) { return T == NULL ? 0 : T -> he
  * @param newKey: a key to insert
  */
 void insertBST(Tree *T, const int newKey) {
-  Node *p     = *T,
-       *q     = NULL;
-  stack stack = NULL;
+  register Node *p  = *T,
+                *q  = NULL;
+  stack stack       = NULL;
 
   while (p != NULL) {                                 /* step 1: find position q to insert newKey */
     if  (newKey == p -> key) { clear(&stack); return; }
@@ -62,9 +62,9 @@ void insertBST(Tree *T, const int newKey) {
  * @param deleteKey: a key to delete
  */
 void deleteBST(Tree *T, const int deleteKey) {
-  Node *p     = *T,
-       *q     = NULL;
-  stack stack = NULL;
+  register Node *p  = *T,
+                *q  = NULL;
+  stack stack       = NULL;
 
   while (p != NULL && deleteKey != p -> key) {
     push(&stack, p);

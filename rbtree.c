@@ -27,8 +27,8 @@ static inline Node *getNode() {
  * @param newKey: a key to insert
  */
 void insertRB(Tree *T, const int newKey) {
-  Node *p     = *T;
-  stack stack = NULL;
+  register Node *p  = *T;
+  stack stack       = NULL;
 
   while (p != NULL) {
     if  (newKey == p -> key) { clear(&stack); return; }
@@ -36,8 +36,8 @@ void insertRB(Tree *T, const int newKey) {
     p = newKey < p -> key ? p -> left : p -> right;
   }
 
-  Node *n   = getNode();
-  n -> key  = newKey;
+  register Node *n  = getNode();
+  n -> key          = newKey;
 
   if (*T == NULL) { n -> color = BLACK; *T = n; return; }
 
@@ -120,9 +120,9 @@ void insertRB(Tree *T, const int newKey) {
  * @param deleteKey: a key to delete
  */
 void deleteRB(Tree *T, const int deleteKey) {
-  Node *p     = *T,
-       *q     = NULL;
-  stack stack = NULL;
+  register Node *p  = *T,
+                *q  = NULL;
+  stack stack       = NULL;
 
   while (p != NULL && deleteKey != p -> key) {
     push(&stack, p);
