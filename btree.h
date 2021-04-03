@@ -48,4 +48,4 @@ void deleteBT(Tree *T, const unsigned int m, const int oldKey);
  */
 void inorderBT(const Tree T);
 
-#endif
+#endif /* _BTREE_H */

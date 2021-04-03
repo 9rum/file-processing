@@ -45,4 +45,4 @@ void deleteBST(Tree *T, const int deleteKey);
  */
 void inorderBST(const Tree T);
 
-#endif
+#endif /* _BSTREE_H */

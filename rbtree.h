@@ -47,4 +47,4 @@ void deleteRB(Tree *T, const int deleteKey);
  */
 void inorderRB(const Tree T);
 
-#endif
+#endif /* _RBTREE_H */

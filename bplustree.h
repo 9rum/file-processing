@@ -60,4 +60,4 @@ void deleteBPT(Tree *T, const unsigned int m, const int oldKey);
  */
 void traverseBPT(const Tree T);
 
-#endif
+#endif /* _BPLUSTREE_H */

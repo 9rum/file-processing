@@ -43,11 +43,12 @@ static inline InternalNode *getInternalNode(const unsigned int m) {
  * @param key: a key to search
  */
 static inline unsigned int binarySearch(const int *K, const unsigned int n, const int key) {
-  int i = 0,
-      j = n-1;
+  register int  i = 0,
+                j = n-1;
+  register unsigned int mid;
 
   while (i <= j) {
-    unsigned int mid = i+j>>1;
+    mid = i+j>>1;
     if (key == K[mid])  return mid;
     if (key < K[mid])   j = mid-1;
     else                i = mid+1;
@@ -75,9 +76,10 @@ void insertBPT(Tree *T, const unsigned int m, const int newKey) {
   stack stack               = NULL,
         iStack              = NULL;
   register int key          = newKey;
+  register unsigned int i;
 
   while (x != NULL) {                             /* find position to insert newKey while storing x on the stack */
-    unsigned int i = binarySearch(x -> K, x -> n, newKey);
+    i = binarySearch(x -> K, x -> n, newKey);
     push(&stack, x);
     push(&iStack, i);
     if (x -> Pi != NULL)  { x = x -> Pi[i]; }
@@ -93,8 +95,7 @@ void insertBPT(Tree *T, const unsigned int m, const int newKey) {
     return;
   }
 
-  register unsigned int i = binarySearch(z -> K, z -> q, newKey);
-  if (i < z -> q && newKey == z -> K[i]) { clear(&stack); clear(&iStack); return; }
+  if ((i = binarySearch(z -> K, z -> q, newKey)) < z -> q && newKey == z -> K[i]) { clear(&stack); clear(&iStack); return; }
 
   if (z -> q < m) {
     memcpy(&z -> K[i+1], &z -> K[i], sizeof(int)*(z -> q-i));
@@ -147,8 +148,8 @@ void insertBPT(Tree *T, const unsigned int m, const int newKey) {
     return;
   }
 
-  InternalNode *tempNode  = getInternalNode(m+1);
-  tempNode -> Pt          = calloc(m+1, sizeof(TerminalNode *));
+  register InternalNode *tempNode = getInternalNode(m+1);
+  tempNode -> Pt                  = calloc(m+1, sizeof(TerminalNode *));
   memcpy(tempNode -> K, x -> K, sizeof(int)*i);
   memcpy(&tempNode -> K[i+1], &x -> K[i], sizeof(int)*(x -> n-i));
   memcpy(tempNode -> Pt, x -> Pt, sizeof(TerminalNode *)*(i+1));
@@ -230,17 +231,17 @@ void deleteBPT(Tree *T, const unsigned int m, const int oldKey) {
   TerminalNode *z           = (*T) -> SequenceSet;
   stack stack               = NULL,
         iStack              = NULL;
+  register unsigned int i;
 
-  while (x != NULL) {                                                                                               /* find position of oldKey while storing x on the stack */
-    unsigned int i = binarySearch(x -> K, x -> n, oldKey);
+  while (x != NULL) {                                                                 /* find position of oldKey while storing x on the stack */
+    i = binarySearch(x -> K, x -> n, oldKey);
     push(&stack, x);
     push(&iStack, i);
     if (x -> Pi != NULL)  { x = x -> Pi[i]; }
     else                  { z = x -> Pt[i]; x = NULL; }
   }
 
-  register unsigned int i = binarySearch(z -> K, z -> q, oldKey);
-  if (i < z -> q && oldKey != z -> K[i] || z -> q <= i) { clear(&stack); clear(&iStack); return; }
+  if ((i = binarySearch(z -> K, z -> q, oldKey)) < z -> q && oldKey != z -> K[i] || z -> q <= i) { clear(&stack); clear(&iStack); return; }
 
   z -> q--;
   memcpy(&z -> K[i], &z -> K[i+1], sizeof(int)*(z -> q-i));
@@ -256,10 +257,13 @@ void deleteBPT(Tree *T, const unsigned int m, const int oldKey) {
 
   x                         = pop(&stack);
   i                         = pop(&iStack);
-  unsigned int b            = i == 0 ? i+1 : i == x -> n ? i-1 : x -> Pt[i-1] -> q < x -> Pt[i+1] -> q ? i+1 : i-1; /* choose bestSibling of z node */
+  register unsigned int b   = i == 0                                ? i+1
+                            : i == x -> n                           ? i-1
+                            : x -> Pt[i-1] -> q < x -> Pt[i+1] -> q ? i+1
+                                                                    : i-1;            /* choose bestSibling of z node */
   TerminalNode *BestSibling = x -> Pt[b];
 
-  if    (m+1>>1 < BestSibling -> q) {                                                                               /* case of key redistribution */
+  if    (m+1>>1 < BestSibling -> q) {                                                 /* case of key redistribution */
     if  (b < i) {
       memcpy(&z -> K[1], z -> K, sizeof(int)*z -> q);
       z -> K[0]   = BestSibling -> K[BestSibling -> q-1];
@@ -276,7 +280,7 @@ void deleteBPT(Tree *T, const unsigned int m, const int oldKey) {
     return;
   }
 
-  if (b < i) {                                                                                                      /* case of terminal node merge */
+  if (b < i) {                                                                        /* case of terminal node merge */
     memcpy(&BestSibling -> K[BestSibling -> q], z -> K, sizeof(int)*z -> q);
     memcpy(&x -> K[i-1], &x -> K[i], sizeof(int)*(x -> n-i));
     memcpy(&x -> Pt[i], &x -> Pt[i+1], sizeof(TerminalNode *)*(x -> n-i));
@@ -302,12 +306,15 @@ void deleteBPT(Tree *T, const unsigned int m, const int oldKey) {
     return;
   }
 
-  y                         = pop(&stack);
-  i                         = pop(&iStack);
-  b                         = i == 0 ? i+1 : i == y -> n ? i-1 : y -> Pi[i-1] -> n < y -> Pi[i+1] -> n ? i+1 : i-1; /* choose bestSibling of x node */
-  InternalNode *bestSibling = y -> Pi[b];
+  y                                   = pop(&stack);
+  i                                   = pop(&iStack);
+  b                                   = i == 0                                ? i+1
+                                      : i == y -> n                           ? i-1
+                                      : y -> Pi[i-1] -> n < y -> Pi[i+1] -> n ? i+1
+                                                                              : i-1;  /* choose bestSibling of x node */
+  register InternalNode *bestSibling  = y -> Pi[b];
 
-  if    (m-1>>1 < bestSibling -> n) {                                                                               /* case of key redistribution */
+  if    (m-1>>1 < bestSibling -> n) {                                                 /* case of key redistribution */
     if  (b < i) {
       memcpy(&x -> K[1], x -> K, sizeof(int)*x -> n);
       memcpy(&x -> Pt[1], x -> Pt, sizeof(TerminalNode *)*(x -> n+1));
@@ -329,7 +336,7 @@ void deleteBPT(Tree *T, const unsigned int m, const int oldKey) {
     return;
   }
 
-  if (b < i) {                                                                                                      /* case of internal node merge */
+  if (b < i) {                                                                        /* case of internal node merge */
     bestSibling -> K[bestSibling -> n] = y -> K[i-1];
     memcpy(&bestSibling -> K[bestSibling -> n+1], x -> K, sizeof(int)*x -> n);
     memcpy(&bestSibling -> Pt[bestSibling -> n+1], x -> Pt, sizeof(TerminalNode *)*(x -> n+1));
@@ -355,10 +362,13 @@ void deleteBPT(Tree *T, const unsigned int m, const int oldKey) {
 
     y           = pop(&stack);
     i           = pop(&iStack);
-    b           = i == 0 ? i+1 : i == y -> n ? i-1 : y -> Pi[i-1] -> n < y -> Pi[i+1] -> n ? i+1 : i-1;             /* choose bestSibling of x node */
+    b           = i == 0                                ? i+1
+                : i == y -> n                           ? i-1
+                : y -> Pi[i-1] -> n < y -> Pi[i+1] -> n ? i+1
+                                                        : i-1;                        /* choose bestSibling of x node */
     bestSibling = y -> Pi[b];
 
-    if    (m-1>>1 < bestSibling -> n) {                                                                             /* case of key redistribution */
+    if    (m-1>>1 < bestSibling -> n) {                                               /* case of key redistribution */
       if  (b < i) {
         memcpy(&x -> K[1], x -> K, sizeof(int)*x -> n);
         memcpy(&x -> Pi[1], x -> Pi, sizeof(InternalNode *)*(x -> n+1));
@@ -378,7 +388,7 @@ void deleteBPT(Tree *T, const unsigned int m, const int oldKey) {
       break;
     }
 
-    if (b < i) {                                                                                                    /* case of internal node merge */
+    if (b < i) {                                                                      /* case of internal node merge */
       bestSibling -> K[bestSibling -> n] = y -> K[i-1];
       memcpy(&bestSibling -> K[bestSibling -> n+1], x -> K, sizeof(int)*x -> n);
       memcpy(&bestSibling -> Pi[bestSibling -> n+1], x -> Pi, sizeof(InternalNode *)*(x -> n+1));
@@ -400,7 +410,7 @@ void deleteBPT(Tree *T, const unsigned int m, const int oldKey) {
     x = y;
   }
 
-  if (x -> n == 0) { (*T) -> IndexSet = x -> Pi[0]; free(x); }                                                      /* the level of tree decreases */
+  if (x -> n == 0) { (*T) -> IndexSet = x -> Pi[0]; free(x); }                        /* the level of tree decreases */
 
   clear(&stack);
   clear(&iStack);

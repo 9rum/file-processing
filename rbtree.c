@@ -27,7 +27,10 @@ static inline Node *getNode() {
  * @param newKey: a key to insert
  */
 void insertRB(Tree *T, const int newKey) {
-  register Node *p  = *T;
+  register Node *u,
+                *g,
+                *f,
+                *p  = *T;
   stack stack       = NULL;
 
   while (p != NULL) {
@@ -50,8 +53,8 @@ void insertRB(Tree *T, const int newKey) {
 
     if (p -> color == BLACK) break;
 
-    Node *g = pop(&stack);
-    Node *u = p == g -> right ? g -> left : g -> right;
+    g = pop(&stack);
+    u = p == g -> right ? g -> left : g -> right;
 
     if      (u == NULL || u -> color == BLACK) {  /* case of restructuring */
       if    (g -> left == p) {
@@ -59,22 +62,20 @@ void insertRB(Tree *T, const int newKey) {
           g -> left   = p -> right;
           p -> right  = g;
           p -> color  = BLACK;
-          if (!empty(stack)) {
-            Node *f = top(stack);
-            if (f -> left == g) f -> left   = p;
-            else                f -> right  = p;
-          } else                *T          = p;
+          if    (!empty(stack)) {
+            if  ((f = top(stack)) -> left == g) f -> left   = p;
+            else                                f -> right  = p;
+          } else                                *T          = p;
         } else {
           p -> right  = n -> left;
           g -> left   = n -> right;
           n -> left   = p;
           n -> right  = g;
           n -> color  = BLACK;
-          if (!empty(stack)) {
-            Node *f = top(stack);
-            if (f -> left == g) f -> left   = n;
-            else                f -> right  = n;
-          } else                *T          = n;
+          if    (!empty(stack)) {
+            if  ((f = top(stack)) -> left == g) f -> left   = n;
+            else                                f -> right  = n;
+          } else                                *T          = n;
         }
       } else {
         if (p -> left == n) {
@@ -83,20 +84,18 @@ void insertRB(Tree *T, const int newKey) {
           n -> left   = g;
           n -> right  = p;
           n -> color  = BLACK;
-          if (!empty(stack)) {
-            Node *f = top(stack);
-            if (f -> left == g) f -> left   = n;
-            else                f -> right  = n;
-          } else                *T          = n;
+          if    (!empty(stack)) {
+            if  ((f = top(stack)) -> left == g) f -> left   = n;
+            else                                f -> right  = n;
+          } else                                *T          = n;
         } else {
           g -> right  = p -> left;
           p -> left   = g;
           p -> color  = BLACK;
-          if (!empty(stack)) {
-            Node *f = top(stack);
-            if (f -> left == g) f -> left   = p;
-            else                f -> right  = p;
-          } else                *T          = p;
+          if    (!empty(stack)) {
+            if  ((f = top(stack)) -> left == g) f -> left   = p;
+            else                                f -> right  = p;
+          } else                                *T          = p;
         }
       }
 
@@ -120,7 +119,10 @@ void insertRB(Tree *T, const int newKey) {
  * @param deleteKey: a key to delete
  */
 void deleteRB(Tree *T, const int deleteKey) {
-  register Node *p  = *T,
+  register Node *r,
+                *s,
+                *f,
+                *p  = *T,
                 *q  = NULL;
   stack stack       = NULL;
 
@@ -160,14 +162,14 @@ void deleteRB(Tree *T, const int deleteKey) {
 
   if (p -> color == RED) { free(p); clear(&stack); return; }
 
-  Node *x = p -> right == NULL ? p -> left : p -> right;
+  register Node *x = p -> right == NULL ? p -> left : p -> right;
   free(p);
 
   if (x != NULL && x -> color == RED) { x -> color = BLACK; clear(&stack); return; }
 
   while (!empty(stack)) {                                                               /* case of double black */
-    p       = pop(&stack);
-    Node *s = x == p -> right ? p -> left : p -> right;
+    p = pop(&stack);
+    s = x == p -> right ? p -> left : p -> right;
 
     if (s -> color == RED) {
       p -> color = RED;
@@ -176,19 +178,17 @@ void deleteRB(Tree *T, const int deleteKey) {
       if (p -> left == x) {
         p -> right  = s -> left;
         s -> left   = p;
-        if (!empty(stack)) {
-          Node *f = top(stack);
-          if (f -> left == p) f -> left   = s;
-          else                f -> right  = s;
-        } else                *T          = s;
+        if    (!empty(stack)) {
+          if  ((f = top(stack)) -> left == p) f -> left   = s;
+          else                                f -> right  = s;
+        } else                                *T          = s;
       } else {
         p -> left   = s -> right;
         s -> right  = p;
-        if (!empty(stack)) {
-          Node *f = top(stack);
-          if (f -> left == p) f -> left   = s;
-          else                f -> right  = s;
-        } else                *T          = s;
+        if    (!empty(stack)) {
+          if  ((f = top(stack)) -> left == p) f -> left   = s;
+          else                                f -> right  = s;
+        } else                                *T          = s;
       }
 
       push(&stack, s);
@@ -199,7 +199,7 @@ void deleteRB(Tree *T, const int deleteKey) {
       if  (p -> left == s && s -> right != NULL && s -> right -> color == RED) {        /* case of Left Right */
         s -> color          = RED;
         s -> right -> color = BLACK;
-        Node *r             = s -> right;
+        r                   = s -> right;
         s -> right          = r -> left;
         r -> left           = s;
         p -> left           = r;
@@ -207,7 +207,7 @@ void deleteRB(Tree *T, const int deleteKey) {
       } else if (p -> right == s && s -> left != NULL && s -> left -> color == RED) {   /* case of Right Left */
         s -> color          = RED;
         s -> left -> color  = BLACK;
-        Node *r             = s -> left;
+        r                   = s -> left;
         s -> left           = r -> right;
         r -> right          = s;
         p -> right          = r;
@@ -226,19 +226,18 @@ void deleteRB(Tree *T, const int deleteKey) {
         p -> right          = s -> left;
         s -> left           = p;
       }
-      if (!empty(stack)) {
-        Node *f = top(stack);
-        if (f -> left == p) f -> left   = s;
-        else                f -> right  = s;
-      } else                *T          = s;
+      if    (!empty(stack)) {
+        if  ((f = top(stack)) -> left == p) f -> left   = s;
+        else                                f -> right  = s;
+      } else                                *T          = s;
 
       break;
     }
 
     if ((s -> left == NULL || s -> left -> color == BLACK) && (s -> right == NULL || s -> right -> color == BLACK)) {
       s -> color = RED;
-      if (p -> color == RED) { p -> color = BLACK; break; }
-      else x = p;
+      if (p -> color == RED)  { p -> color = BLACK; break; }
+      else                    { x = p; }
     }
   }
 

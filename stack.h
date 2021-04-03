@@ -54,4 +54,4 @@ void *pop(stack *stack);
  */
 void clear(stack *stack);
 
-#endif
+#endif /* _STACK_H */
