@@ -18,9 +18,9 @@
  * @see https://www.sciencedirect.com/science/article/pii/S0019995860909013
  */
 typedef struct Node {
-  int           key;
-  unsigned int  height;
-  struct Node   *left,  *right;
+  int         key;
+  size_t      height;
+  struct Node *left,  *right;
 } Node;
 
 typedef Node *Tree;
