@@ -4,10 +4,14 @@
  * license that can be found in the LICENSE file.
  *
  * File Processing, 2020
- * stack.h
- * Stack implementation
+ *
+ * stack.h - generic stack definition
+ *
+ * The stack gives the programmer the functionality of a stack
+ * - specifically, a LIFO (last-in, first-out) data structure.
+ *
+ * The stack pushes and pops the element from the top of the stack.
  */
-
 #ifndef _STACK_H
 #define _STACK_H
 
@@ -15,43 +19,64 @@
 #include <stdbool.h>
 
 /**
- * stack represents a stack.
- * @see https://en.cppreference.com/w/cpp/container/stack
+ * struct stack - generic stack
+ *
+ * @value:  the value of the element
+ * @next:   the pointer to the next element
+ *
+ * See https://en.cppreference.com/w/cpp/container/stack
  */
-typedef struct stack {
+struct stack {
   void          *value;
   struct stack  *next;
-} *stack;
+};
 
 /**
- * empty checks whether stack is empty.
- * @param stack: a stack
+ * empty - checks whether @stack is empty
+ *
+ * @stack: stack to check
  */
-bool empty(const stack stack);
+inline bool empty(const struct stack *stack) { return stack == NULL; }
 
 /**
- * top accesses the top element.
- * @param stack: a stack
+ * top - accesses the top element
+ *
+ * @stack: stack to access the top element
  */
-void *top(const stack stack);
+inline void *top(const struct stack *stack) { return empty(stack) ? NULL : stack -> value; }
 
 /**
- * push inserts element at the top.
- * @param stack: a stack
- * @param value: the value of the element to push
+ * push - inserts element at the top
+ *
+ * @stack: stack to insert element
+ * @value: the value of the element to push
  */
-void push(stack *stack, void *value);
+inline void push(struct stack **stack, void *value) {
+  struct stack *top = malloc(sizeof(struct stack));
+  top -> value      = value;
+  top -> next       = *stack;
+  *stack            = top;
+}
 
 /**
- * pop removes the top element.
- * @param stack: a stack
+ * pop - removes the top element
+ *
+ * @stack: stack to remove the top element
  */
-void *pop(stack *stack);
+inline void *pop(struct stack **stack) {
+  if (empty(*stack))  return NULL;
+  struct stack *top   = *stack;
+  void *value         = top -> value;
+  *stack              = top -> next;
+  free(top);
+  return value;
+}
 
 /**
- * clear empties stack.
- * @param stack: a stack
+ * clear - empties @stack
+ *
+ * @stack: stack to empty
  */
-void clear(stack *stack);
+inline void clear(struct stack **stack) { while (!empty(*stack)) pop(stack); }
 
 #endif /* _STACK_H */
