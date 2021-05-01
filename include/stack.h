@@ -5,7 +5,7 @@
  *
  * File Processing, 2020
  *
- * stack.h - generic stack definition
+ * stack.h - generic stack implementation
  *
  * The stack gives the programmer the functionality of a stack
  * - specifically, a LIFO (last-in, first-out) data structure.
@@ -36,14 +36,14 @@ struct stack {
  *
  * @stack: stack to check
  */
-inline bool empty(const struct stack *stack) { return stack == NULL; }
+extern inline bool empty(const struct stack *stack) { return stack == NULL; }
 
 /**
  * top - accesses the top element
  *
  * @stack: stack to access the top element
  */
-inline void *top(const struct stack *stack) { return empty(stack) ? NULL : stack -> value; }
+extern inline void *top(const struct stack *stack) { return empty(stack) ? NULL : stack->value; }
 
 /**
  * push - inserts element at the top
@@ -51,10 +51,10 @@ inline void *top(const struct stack *stack) { return empty(stack) ? NULL : stack
  * @stack: stack to insert element
  * @value: the value of the element to push
  */
-inline void push(struct stack **stack, void *value) {
+extern inline void push(struct stack **stack, void *value) {
   struct stack *top = malloc(sizeof(struct stack));
-  top -> value      = value;
-  top -> next       = *stack;
+  top->value        = value;
+  top->next         = *stack;
   *stack            = top;
 }
 
@@ -63,11 +63,11 @@ inline void push(struct stack **stack, void *value) {
  *
  * @stack: stack to remove the top element
  */
-inline void *pop(struct stack **stack) {
+extern inline void *pop(struct stack **stack) {
   if (empty(*stack))  return NULL;
   struct stack *top   = *stack;
-  void *value         = top -> value;
-  *stack              = top -> next;
+  void *value         = top->value;
+  *stack              = top->next;
   free(top);
   return value;
 }
@@ -77,6 +77,6 @@ inline void *pop(struct stack **stack) {
  *
  * @stack: stack to empty
  */
-inline void clear(struct stack **stack) { while (!empty(*stack)) pop(stack); }
+extern inline void clear(struct stack **stack) { while (!empty(*stack)) pop(stack); }
 
 #endif /* _STACK_H */
