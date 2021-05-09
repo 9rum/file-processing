@@ -64,10 +64,10 @@ extern inline void push(struct stack **stack, void *value) {
  * @stack: stack to remove the top element
  */
 extern inline void *pop(struct stack **stack) {
-  if (empty(*stack))  return NULL;
-  struct stack *top   = *stack;
-  void *value         = top->value;
-  *stack              = top->next;
+  if (empty(*stack))    return NULL;
+  struct stack  *top    = *stack;
+  void          *value  = top->value;
+  *stack                = top->next;
   free(top);
   return value;
 }
@@ -77,6 +77,13 @@ extern inline void *pop(struct stack **stack) {
  *
  * @stack: stack to empty
  */
-extern inline void clear(struct stack **stack) { while (!empty(*stack)) pop(stack); }
+extern inline void clear(struct stack **stack) {
+  register struct stack *top;
+  while (!empty(*stack)) {
+    top     = *stack;
+    *stack  = top->next;
+    free(top);
+  }
+}
 
 #endif /* _STACK_H */
