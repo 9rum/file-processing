@@ -21,14 +21,14 @@
 /**
  * struct stack - generic stack
  *
- * @value:  the value of the element
- * @next:   the pointer to the next element
+ * @value: the value of the element
+ * @next:  the pointer to the next element
  *
  * See https://en.cppreference.com/w/cpp/container/stack
  */
 struct stack {
-  void          *value;
-  struct stack  *next;
+  void         *value;
+  struct stack *next;
 };
 
 /**
@@ -64,10 +64,10 @@ extern inline void push(struct stack **stack, void *value) {
  * @stack: stack to remove the top element
  */
 extern inline void *pop(struct stack **stack) {
-  if (empty(*stack))    return NULL;
-  struct stack  *top    = *stack;
-  void          *value  = top->value;
-  *stack                = top->next;
+  if (empty(*stack))  return NULL;
+  struct stack *top   = *stack;
+  void         *value = top->value;
+  *stack              = top->next;
   free(top);
   return value;
 }
@@ -80,8 +80,8 @@ extern inline void *pop(struct stack **stack) {
 extern inline void clear(struct stack **stack) {
   register struct stack *top;
   while (!empty(*stack)) {
-    top     = *stack;
-    *stack  = top->next;
+    top    = *stack;
+    *stack = top->next;
     free(top);
   }
 }
