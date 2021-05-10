@@ -101,7 +101,7 @@ static inline unsigned int height(const struct avl_node *tree) { return tree == 
  * @less:   operator defining the (partial) node order
  */
 static inline void avl_rotate_LL(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
-                             bool (*less)(const void *, const void *)) {
+                                 bool (*less)(const void *, const void *)) {
   struct avl_node *lchild = x->left;
   x->left                 = lchild->right;
   lchild->right           = x;
@@ -134,7 +134,7 @@ static inline void avl_rotate_LL(struct avl_node **root, struct avl_node *x, str
  * @less:   operator defining the (partial) node order
  */
 static inline void avl_rotate_RR(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
-                             bool (*less)(const void *, const void *)) {
+                                 bool (*less)(const void *, const void *)) {
   struct avl_node *rchild = x->right;
   x->right                = rchild->left;
   rchild->left            = x;
@@ -167,7 +167,7 @@ static inline void avl_rotate_RR(struct avl_node **root, struct avl_node *x, str
  * @less:   operator defining the (partial) node order
  */
 static inline void avl_rotate_LR(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
-                             bool (*less)(const void *, const void *)) {
+                                 bool (*less)(const void *, const void *)) {
   struct avl_node *lchild  = x->left;
   struct avl_node *rgchild = lchild->right;
   lchild->right            = rgchild->left;
@@ -204,7 +204,7 @@ static inline void avl_rotate_LR(struct avl_node **root, struct avl_node *x, str
  * @less:   operator defining the (partial) node order
  */
 static inline void avl_rotate_RL(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
-                             bool (*less)(const void *, const void *)) {
+                                 bool (*less)(const void *, const void *)) {
   struct avl_node *rchild  = x->right;
   struct avl_node *lgchild = rchild->left;
   x->right                 = lgchild->left;
