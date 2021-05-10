@@ -56,8 +56,6 @@ struct avl_node {
         int             bf;
 };
 
-static inline unsigned int max(const unsigned int a, const unsigned int b) { return a < b ? b : a; }
-
 /**
  * get_avl_node - returns a new struct avl_node
  */
@@ -70,6 +68,8 @@ static inline struct avl_node *get_avl_node() {
   return node;
 }
 
+static inline unsigned int max(const unsigned int a, const unsigned int b) { return a < b ? b : a; }
+
 /**
  * height - returns the height of @tree
  *
@@ -77,15 +77,30 @@ static inline struct avl_node *get_avl_node() {
  */
 static inline unsigned int height(const struct avl_node *tree) { return tree == NULL ? 0 : tree->height; }
 
+/*
+ * The below functions use the operator with 3 different
+ * calling conventions. The operator denotes:
+ *
+ *    a < b  := less(a, b)
+ *    a > b  := less(b, a)
+ *    a == b := !less(a, b) && !less(b, a)
+ *
+ * NOTE:
+ *
+ * less must describe a transitive ordering:
+ *  - if both less(a, b) and less(b, c) are true, then less(a, c) must be true as well
+ *  - if both less(a, b) and less(b, c) are false, then less(a, c) must be false as well
+ */
+
 /**
- * rotate_LL - implements Left Left rotation in subtree rooted with @x
+ * avl_rotate_LL - implements Left Left rotation in subtree rooted with @x
  *
  * @root:   root node of tree
  * @x:      root node of subtree
  * @parent: parent node of @x
- * @less:   operator defining the node order
+ * @less:   operator defining the (partial) node order
  */
-static inline void rotate_LL(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
+static inline void avl_rotate_LL(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
                              bool (*less)(const void *, const void *)) {
   struct avl_node *lchild = x->left;
   x->left                 = lchild->right;
@@ -111,14 +126,14 @@ static inline void rotate_LL(struct avl_node **root, struct avl_node *x, struct 
 }
 
 /**
- * rotate_RR - implements Right Right rotation in subtree rooted with @x
+ * avl_rotate_RR - implements Right Right rotation in subtree rooted with @x
  *
  * @root:   root node of tree
  * @x:      root node of subtree
  * @parent: parent node of @x
- * @less:   operator defining the node order
+ * @less:   operator defining the (partial) node order
  */
-static inline void rotate_RR(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
+static inline void avl_rotate_RR(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
                              bool (*less)(const void *, const void *)) {
   struct avl_node *rchild = x->right;
   x->right                = rchild->left;
@@ -144,14 +159,14 @@ static inline void rotate_RR(struct avl_node **root, struct avl_node *x, struct 
 }
 
 /**
- * rotate_LR - implements Left Right rotation in subtree rooted with @x
+ * avl_rotate_LR - implements Left Right rotation in subtree rooted with @x
  *
  * @root:   root node of tree
  * @x:      root node of subtree
  * @parent: parent node of @x
- * @less:   operator defining the node order
+ * @less:   operator defining the (partial) node order
  */
-static inline void rotate_LR(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
+static inline void avl_rotate_LR(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
                              bool (*less)(const void *, const void *)) {
   struct avl_node *lchild  = x->left;
   struct avl_node *rgchild = lchild->right;
@@ -181,14 +196,14 @@ static inline void rotate_LR(struct avl_node **root, struct avl_node *x, struct 
 }
 
 /**
- * rotate_RL - implements Right Left rotation in subtree rooted with @x
+ * avl_rotate_RL - implements Right Left rotation in subtree rooted with @x
  *
  * @root:   root node of tree
  * @x:      root node of subtree
  * @parent: parent node of @x
- * @less:   operator defining the node order
+ * @less:   operator defining the (partial) node order
  */
-static inline void rotate_RL(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
+static inline void avl_rotate_RL(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
                              bool (*less)(const void *, const void *)) {
   struct avl_node *rchild  = x->right;
   struct avl_node *lgchild = rchild->left;
@@ -223,24 +238,24 @@ static inline void rotate_RL(struct avl_node **root, struct avl_node *x, struct 
  * @tree:  tree to insert @key and @value into
  * @key:   the key to insert
  * @value: the value to insert
- * @less:  operator defining the node order
+ * @less:  operator defining the (partial) node order
  */
 extern inline void avl_insert(struct avl_node **tree, const void *key, void *value,
                               bool (*less)(const void *, const void *)) {
   register struct avl_node *cursor = *tree;
   register struct avl_node *x      = NULL;
            struct avl_node *parent = NULL;
-           struct stack *stack     = NULL;
+           struct stack    *stack  = NULL;
 
   push(&stack, NULL);
 
-  while (cursor != NULL) {                                  /* Phase 1: find position to insert @key and @value */
+  while (cursor != NULL) {                                      /* Phase 1: find position to insert @key and @value */
     if  (!(less(key, cursor->key) || less(cursor->key, key))) { clear(&stack); return; }
     push(&stack, cursor);
     cursor = less(key, cursor->key) ? cursor->left : cursor->right;
   }
 
-  struct avl_node *node = get_avl_node();                   /* Phase 2: insert @key and @value and rebalance */
+  struct avl_node *node = get_avl_node();                       /* Phase 2: insert @key and @value and rebalance */
   node->key             = key;
   node->value           = value;
 
@@ -260,11 +275,11 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
   if (x == NULL) return;
 
   if   (1 < x->bf) {
-    if (x->left->bf < 0)  rotate_LR(tree, x, parent, less); /* case of Left Right */
-    else                  rotate_LL(tree, x, parent, less); /* case of Left Left */
+    if (x->left->bf < 0)  avl_rotate_LR(tree, x, parent, less); /* case of Left Right */
+    else                  avl_rotate_LL(tree, x, parent, less); /* case of Left Left */
   } else {
-    if (0 < x->right->bf) rotate_RL(tree, x, parent, less); /* case of Right Left */
-    else                  rotate_RR(tree, x, parent, less); /* case of Right Right */
+    if (0 < x->right->bf) avl_rotate_RL(tree, x, parent, less); /* case of Right Left */
+    else                  avl_rotate_RR(tree, x, parent, less); /* case of Right Right */
   }
 }
 
@@ -273,14 +288,14 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
  *
  * @tree: tree to erase @key from
  * @key:  the key to erase
- * @less: operator defining the node order
+ * @less: operator defining the (partial) node order
  */
 extern inline void avl_erase(struct avl_node **tree, const void *key,
                              bool (*less)(const void *, const void *)) {
   register struct avl_node *cursor = *tree;
   register struct avl_node *x      = NULL;
            struct avl_node *parent = NULL;
-           struct stack *stack     = NULL;
+           struct stack    *stack  = NULL;
 
   push(&stack, NULL);
 
@@ -334,13 +349,21 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
   if (x == NULL) return;
 
   if   (1 < x->bf) {
-    if (x->left->bf < 0)  rotate_LR(tree, x, parent, less);            /* case of Left Right */
-    else                  rotate_LL(tree, x, parent, less);            /* case of Left Left */
+    if (x->left->bf < 0)  avl_rotate_LR(tree, x, parent, less);        /* case of Left Right */
+    else                  avl_rotate_LL(tree, x, parent, less);        /* case of Left Left */
   } else {
-    if (0 < x->right->bf) rotate_RL(tree, x, parent, less);            /* case of Right Left */
-    else                  rotate_RR(tree, x, parent, less);            /* case of Right Right */
+    if (0 < x->right->bf) avl_rotate_RL(tree, x, parent, less);        /* case of Right Left */
+    else                  avl_rotate_RR(tree, x, parent, less);        /* case of Right Right */
   }
 }
+
+/**
+ * avl_preorder - implements preorder traversal in @tree
+ *
+ * @tree: tree to traverse
+ * @f:    function to apply to each node of @tree
+ */
+extern inline void avl_preorder(const struct avl_node *tree, void (*f)(const struct avl_node *)) { if (tree != NULL) { f(tree); avl_preorder(tree->left, f); avl_preorder(tree->right, f); } }
 
 /**
  * avl_inorder - implements inorder traversal in @tree
@@ -349,5 +372,13 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
  * @f:    function to apply to each node of @tree
  */
 extern inline void avl_inorder(const struct avl_node *tree, void (*f)(const struct avl_node *)) { if (tree != NULL) { avl_inorder(tree->left, f); f(tree); avl_inorder(tree->right, f); } }
+
+/**
+ * avl_postorder - implements postorder traversal in @tree
+ *
+ * @tree: tree to traverse
+ * @f:    function to apply to each node of @tree
+ */
+extern inline void avl_postorder(const struct avl_node *tree, void (*f)(const struct avl_node *)) { if (tree != NULL) { avl_postorder(tree->left, f); avl_postorder(tree->right, f); f(tree); } }
 
 #endif /* _AVLTREE_H */
