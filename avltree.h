@@ -306,7 +306,7 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
 
   if (cursor == NULL) { clear(&stack); return; }
 
-  if (cursor->left != NULL && cursor->right != NULL) {                 /* case of degree 2 */
+  if (cursor->left != NULL && cursor->right != NULL) {                /* case of degree 2 */
     parent = cursor;
     push(&stack, cursor);
 
@@ -319,17 +319,17 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
 
   parent = top(stack);
 
-  if          (cursor->left == NULL && cursor->right == NULL) {        /* case of degree 0 */
-    if        (parent == NULL)         *tree         = NULL;           /* case of root */
+  if          (cursor->left == NULL && cursor->right == NULL) {       /* case of degree 0 */
+    if        (parent == NULL)         *tree         = NULL;          /* case of root */
     else if   (parent->left == cursor) parent->left  = NULL;
     else                               parent->right = NULL;
-  } else {                                                             /* case of degree 1 */
+  } else {                                                            /* case of degree 1 */
     if        (cursor->left != NULL) {
-      if      (parent == NULL)         *tree         = (*tree)->left;  /* case of root */
+      if      (parent == NULL)         *tree         = cursor->left;  /* case of root */
       else if (parent->left == cursor) parent->left  = cursor->left;
       else                             parent->right = cursor->left;
     } else {
-      if      (parent == NULL)         *tree         = (*tree)->right; /* case of root */
+      if      (parent == NULL)         *tree         = cursor->right; /* case of root */
       else if (parent->left == cursor) parent->left  = cursor->right;
       else                             parent->right = cursor->right;
     }
@@ -349,11 +349,11 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
   if (x == NULL) return;
 
   if   (1 < x->bf) {
-    if (x->left->bf < 0)  avl_rotate_LR(tree, x, parent, less);        /* case of Left Right */
-    else                  avl_rotate_LL(tree, x, parent, less);        /* case of Left Left */
+    if (x->left->bf < 0)  avl_rotate_LR(tree, x, parent, less);       /* case of Left Right */
+    else                  avl_rotate_LL(tree, x, parent, less);       /* case of Left Left */
   } else {
-    if (0 < x->right->bf) avl_rotate_RL(tree, x, parent, less);        /* case of Right Left */
-    else                  avl_rotate_RR(tree, x, parent, less);        /* case of Right Right */
+    if (0 < x->right->bf) avl_rotate_RL(tree, x, parent, less);       /* case of Right Left */
+    else                  avl_rotate_RR(tree, x, parent, less);       /* case of Right Right */
   }
 }
 

@@ -14,7 +14,7 @@
 
 bool less(const void *a, const void *b) { return (uintptr_t)a < (uintptr_t)b; }
 
-void print(const struct avl_node *tree) { printf("%" PRIuPTR " ", (uintptr_t)tree->key); }
+void print(const struct avl_node *node) { printf("%" PRIuPTR " ", (uintptr_t)node->key); }
 
 int main() {
   const uintptr_t testcases[] = {40, 11, 77, 33, 20, 90, 99, 70, 88, 80, 66, 10, 22, 30, 44, 55, 50, 60, 25, 49};
