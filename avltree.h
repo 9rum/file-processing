@@ -57,9 +57,9 @@ struct avl_node {
 };
 
 /**
- * get_avl_node - returns a new struct avl_node
+ * avl_get_node - returns a new struct avl_node
  */
-static inline struct avl_node *get_avl_node() {
+static inline struct avl_node *avl_get_node() {
   struct avl_node *node = malloc(sizeof(struct avl_node));
   node->left            = NULL;
   node->right           = NULL;
@@ -250,12 +250,12 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
   push(&stack, NULL);
 
   while (cursor != NULL) {                                      /* Phase 1: find position to insert @key and @value */
-    if  (!(less(key, cursor->key) || less(cursor->key, key))) { clear(&stack); return; }
+    if  (!(less(key, cursor->key) || less(cursor->key, key))) { cursor->value = value; clear(&stack); return; }
     push(&stack, cursor);
     cursor = less(key, cursor->key) ? cursor->left : cursor->right;
   }
 
-  struct avl_node *node = get_avl_node();                       /* Phase 2: insert @key and @value and rebalance */
+  struct avl_node *node = avl_get_node();                       /* Phase 2: insert @key and @value and rebalance */
   node->key             = key;
   node->value           = value;
 
