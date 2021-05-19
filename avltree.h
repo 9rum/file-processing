@@ -259,9 +259,9 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
   node->key             = key;
   node->value           = value;
 
-  if      (*tree == NULL)                         *tree         = node;
-  else if (less(key, (cursor = top(stack))->key)) cursor->left  = node;
-  else                                            cursor->right = node;
+  if      ((cursor = top(stack)) == NULL) *tree         = node;
+  else if (less(key, cursor->key))        cursor->left  = node;
+  else                                    cursor->right = node;
 
   while (top(stack) != NULL && x == NULL) {
     cursor         = pop(&stack);
