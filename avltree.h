@@ -21,6 +21,8 @@
 #ifndef _AVLTREE_H
 #define _AVLTREE_H
 
+#include <stdint.h>
+
 #include "include/stack.h"
 
 /**
@@ -52,9 +54,9 @@ struct avl_node {
         void            *value;
         struct avl_node *left;
         struct avl_node *right;
-        unsigned int    height;
-        int             bf;
-};
+        uint32_t        height;
+        int32_t         bf;
+} __attribute__((aligned(__BIGGEST_ALIGNMENT__)));
 
 /**
  * avl_get_node - returns a new struct avl_node
@@ -68,14 +70,14 @@ static inline struct avl_node *avl_get_node() {
   return node;
 }
 
-static inline unsigned int max(const unsigned int a, const unsigned int b) { return a < b ? b : a; }
+static inline uint32_t max(const uint32_t a, const uint32_t b) { return a < b ? b : a; }
 
 /**
  * height - returns the height of @tree
  *
  * @tree: tree to get the height
  */
-static inline unsigned int height(const struct avl_node *tree) { return tree == NULL ? 0 : tree->height; }
+static inline uint32_t height(const struct avl_node *tree) { return tree == NULL ? 0 : tree->height; }
 
 /*
  * The below functions use the operator with 3 different
