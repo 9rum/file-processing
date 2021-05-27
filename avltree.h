@@ -252,7 +252,7 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
   push(&stack, NULL);
 
   while (cursor != NULL) {                                      /* Phase 1: find position to insert @key and @value */
-    if  (!(less(key, cursor->key) || less(cursor->key, key))) { cursor->value = value; clear(&stack); return; }
+    if  (!(less(key, cursor->key) || less(cursor->key, key))) { clear(&stack); return; }
     push(&stack, cursor);
     cursor = less(key, cursor->key) ? cursor->left : cursor->right;
   }
