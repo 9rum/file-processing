@@ -252,7 +252,7 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
   push(&stack, NULL);
 
   while (cursor != NULL) {                                      /* Phase 1: find position to insert @key and @value */
-    if  (!(less(key, cursor->key) || less(cursor->key, key))) { clear(&stack); return; }
+    if  (!(less(key, cursor->key) || less(cursor->key, key))) { destroy(&stack); return; }
     push(&stack, cursor);
     cursor = less(key, cursor->key) ? cursor->left : cursor->right;
   }
@@ -272,7 +272,7 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
     if (1 < cursor->bf || cursor->bf < -1) { x = cursor; parent = top(stack); }
   }
 
-  clear(&stack);
+  destroy(&stack);
 
   if (x == NULL) return;
 
@@ -306,7 +306,7 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
     cursor = less(key, cursor->key) ? cursor->left : cursor->right;
   }
 
-  if (cursor == NULL) { clear(&stack); return; }
+  if (cursor == NULL) { destroy(&stack); return; }
 
   if (cursor->left != NULL && cursor->right != NULL) {                /* case of degree 2 */
     parent = cursor;
@@ -346,7 +346,7 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
     if (1 < cursor->bf || cursor->bf < -1) { x = cursor; parent = top(stack); }
   }
 
-  clear(&stack);
+  destroy(&stack);
 
   if (x == NULL) return;
 

@@ -73,12 +73,13 @@ extern inline void *pop(struct stack **stack) {
 }
 
 /**
- * clear - empties @stack
+ * destroy - empties @stack
  *
  * @stack: stack to empty
  */
-extern inline void clear(struct stack **stack) {
+extern inline void destroy(struct stack **stack) {
   register struct stack *top;
+
   while (!empty(*stack)) {
     top    = *stack;
     *stack = top->next;
