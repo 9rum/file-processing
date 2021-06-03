@@ -108,22 +108,22 @@ static inline void avl_rotate_LL(struct avl_node **root, struct avl_node *x, str
   x->left                 = lchild->right;
   lchild->right           = x;
 
-  if      (parent == NULL)    *root         = lchild;  /* case of root */
+  if      (parent == NULL)    *root         = lchild; /* case of root */
   else if (parent->left == x) parent->left  = lchild;
   else                        parent->right = lchild;
 
-  register struct avl_node *cursor = *root;
-           struct stack    *stack  = NULL;
+  register struct avl_node *walk  = *root;
+           struct stack    *stack = NULL;
 
-  while (cursor != x->left && cursor != x->right) {
-    push(&stack, cursor);
-    cursor = less(x->key, cursor->key) ? cursor->left : cursor->right;
+  while (walk != x->left && walk != x->right) {
+    push(&stack, walk);
+    walk = less(x->key, walk->key) ? walk->left : walk->right;
   }
 
   while (!empty(stack)) {
-    cursor         = pop(&stack);
-    cursor->height = 1 + max(height(cursor->left), height(cursor->right));
-    cursor->bf     = height(cursor->left) - height(cursor->right);
+    walk         = pop(&stack);
+    walk->height = 1 + max(height(walk->left), height(walk->right));
+    walk->bf     = height(walk->left) - height(walk->right);
   }
 }
 
@@ -141,22 +141,22 @@ static inline void avl_rotate_RR(struct avl_node **root, struct avl_node *x, str
   x->right                = rchild->left;
   rchild->left            = x;
 
-  if      (parent == NULL)    *root         = rchild;  /* case of root */
+  if      (parent == NULL)    *root         = rchild; /* case of root */
   else if (parent->left == x) parent->left  = rchild;
   else                        parent->right = rchild;
 
-  register struct avl_node *cursor = *root;
-           struct stack    *stack  = NULL;
+  register struct avl_node *walk  = *root;
+           struct stack    *stack = NULL;
 
-  while (cursor != x->left && cursor != x->right) {
-    push(&stack, cursor);
-    cursor = less(x->key, cursor->key) ? cursor->left : cursor->right;
+  while (walk != x->left && walk != x->right) {
+    push(&stack, walk);
+    walk = less(x->key, walk->key) ? walk->left : walk->right;
   }
 
   while (!empty(stack)) {
-    cursor         = pop(&stack);
-    cursor->height = 1 + max(height(cursor->left), height(cursor->right));
-    cursor->bf     = height(cursor->left) - height(cursor->right);
+    walk         = pop(&stack);
+    walk->height = 1 + max(height(walk->left), height(walk->right));
+    walk->bf     = height(walk->left) - height(walk->right);
   }
 }
 
@@ -181,19 +181,19 @@ static inline void avl_rotate_LR(struct avl_node **root, struct avl_node *x, str
   else if (parent->left == x) parent->left  = rgchild;
   else                        parent->right = rgchild;
 
-  register struct avl_node *cursor = *root;
-           struct stack    *stack  = NULL;
+  register struct avl_node *walk  = *root;
+           struct stack    *stack = NULL;
 
-  while (cursor != x->left && cursor != x->right) {
-    push(&stack, cursor);
-    cursor = less(x->key, cursor->key) ? cursor->left : cursor->right;
+  while (walk != x->left && walk != x->right) {
+    push(&stack, walk);
+    walk = less(x->key, walk->key) ? walk->left : walk->right;
   }
   push(&stack, lchild);
 
   while (!empty(stack)) {
-    cursor         = pop(&stack);
-    cursor->height = 1 + max(height(cursor->left), height(cursor->right));
-    cursor->bf     = height(cursor->left) - height(cursor->right);
+    walk         = pop(&stack);
+    walk->height = 1 + max(height(walk->left), height(walk->right));
+    walk->bf     = height(walk->left) - height(walk->right);
   }
 }
 
@@ -218,19 +218,19 @@ static inline void avl_rotate_RL(struct avl_node **root, struct avl_node *x, str
   else if (parent->left == x) parent->left  = lgchild;
   else                        parent->right = lgchild;
 
-  register struct avl_node *cursor = *root;
-           struct stack    *stack  = NULL;
+  register struct avl_node *walk  = *root;
+           struct stack    *stack = NULL;
 
-  while (cursor != x->left && cursor != x->right) {
-    push(&stack, cursor);
-    cursor = less(x->key, cursor->key) ? cursor->left : cursor->right;
+  while (walk != x->left && walk != x->right) {
+    push(&stack, walk);
+    walk = less(x->key, walk->key) ? walk->left : walk->right;
   }
   push(&stack, rchild);
 
   while (!empty(stack)) {
-    cursor         = pop(&stack);
-    cursor->height = 1 + max(height(cursor->left), height(cursor->right));
-    cursor->bf     = height(cursor->left) - height(cursor->right);
+    walk         = pop(&stack);
+    walk->height = 1 + max(height(walk->left), height(walk->right));
+    walk->bf     = height(walk->left) - height(walk->right);
   }
 }
 
@@ -244,32 +244,32 @@ static inline void avl_rotate_RL(struct avl_node **root, struct avl_node *x, str
  */
 extern inline void avl_insert(struct avl_node **tree, const void *key, void *value,
                               bool (*less)(const void *, const void *)) {
-  register struct avl_node *cursor = *tree;
+  register struct avl_node *walk   = *tree;
   register struct avl_node *x      = NULL;
            struct avl_node *parent = NULL;
            struct stack    *stack  = NULL;
 
   push(&stack, NULL);
 
-  while (cursor != NULL) {                                      /* Phase 1: find position to insert @key and @value */
-    if  (!(less(key, cursor->key) || less(cursor->key, key))) { destroy(&stack); return; }
-    push(&stack, cursor);
-    cursor = less(key, cursor->key) ? cursor->left : cursor->right;
+  while (walk != NULL) {
+    if  (!(less(key, walk->key) || less(walk->key, key))) { destroy(&stack); return; }
+    push(&stack, walk);
+    walk = less(key, walk->key) ? walk->left : walk->right;
   }
 
-  struct avl_node *node = avl_get_node();                       /* Phase 2: insert @key and @value and rebalance */
+  struct avl_node *node = avl_get_node();
   node->key             = key;
   node->value           = value;
 
-  if      ((cursor = top(stack)) == NULL) *tree         = node;
-  else if (less(key, cursor->key))        cursor->left  = node;
-  else                                    cursor->right = node;
+  if      ((walk = top(stack)) == NULL) *tree       = node;
+  else if (less(key, walk->key))        walk->left  = node;
+  else                                  walk->right = node;
 
   while (top(stack) != NULL && x == NULL) {
-    cursor         = pop(&stack);
-    cursor->height = 1 + max(height(cursor->left), height(cursor->right));
-    cursor->bf     = height(cursor->left) - height(cursor->right);
-    if (1 < cursor->bf || cursor->bf < -1) { x = cursor; parent = top(stack); }
+    walk         = pop(&stack);
+    walk->height = 1 + max(height(walk->left), height(walk->right));
+    walk->bf     = height(walk->left) - height(walk->right);
+    if (1 < walk->bf || walk->bf < -1) { x = walk; parent = top(stack); }
   }
 
   destroy(&stack);
@@ -294,56 +294,56 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
  */
 extern inline void avl_erase(struct avl_node **tree, const void *key,
                              bool (*less)(const void *, const void *)) {
-  register struct avl_node *cursor = *tree;
+  register struct avl_node *walk   = *tree;
   register struct avl_node *x      = NULL;
            struct avl_node *parent = NULL;
            struct stack    *stack  = NULL;
 
   push(&stack, NULL);
 
-  while (cursor != NULL && (less(key, cursor->key) || less(cursor->key, key))) {
-    push(&stack, cursor);
-    cursor = less(key, cursor->key) ? cursor->left : cursor->right;
+  while (walk != NULL && (less(key, walk->key) || less(walk->key, key))) {
+    push(&stack, walk);
+    walk = less(key, walk->key) ? walk->left : walk->right;
   }
 
-  if (cursor == NULL) { destroy(&stack); return; }
+  if (walk == NULL) { destroy(&stack); return; }
 
-  if (cursor->left != NULL && cursor->right != NULL) {                /* case of degree 2 */
-    parent = cursor;
-    push(&stack, cursor);
+  if (walk->left != NULL && walk->right != NULL) {                /* case of degree 2 */
+    parent = walk;
+    push(&stack, walk);
 
-    if (cursor->bf <= 0) for (cursor = cursor->right; cursor->left != NULL; cursor = cursor->left)  push(&stack, cursor);
-    else                 for (cursor = cursor->left; cursor->right != NULL; cursor = cursor->right) push(&stack, cursor);
+    if (walk->bf <= 0) for (walk = walk->right; walk->left != NULL; walk = walk->left)  push(&stack, walk);
+    else               for (walk = walk->left; walk->right != NULL; walk = walk->right) push(&stack, walk);
 
-    parent->key   = cursor->key;
-    parent->value = cursor->value;
+    parent->key   = walk->key;
+    parent->value = walk->value;
   }
 
   parent = top(stack);
 
-  if          (cursor->left == NULL && cursor->right == NULL) {       /* case of degree 0 */
-    if        (parent == NULL)         *tree         = NULL;          /* case of root */
-    else if   (parent->left == cursor) parent->left  = NULL;
-    else                               parent->right = NULL;
-  } else {                                                            /* case of degree 1 */
-    if        (cursor->left != NULL) {
-      if      (parent == NULL)         *tree         = cursor->left;  /* case of root */
-      else if (parent->left == cursor) parent->left  = cursor->left;
-      else                             parent->right = cursor->left;
+  if          (walk->left == NULL && walk->right == NULL) {       /* case of degree 0 */
+    if        (parent == NULL)       *tree         = NULL;        /* case of root */
+    else if   (parent->left == walk) parent->left  = NULL;
+    else                             parent->right = NULL;
+  } else {                                                        /* case of degree 1 */
+    if        (walk->left != NULL) {
+      if      (parent == NULL)       *tree         = walk->left;  /* case of root */
+      else if (parent->left == walk) parent->left  = walk->left;
+      else                           parent->right = walk->left;
     } else {
-      if      (parent == NULL)         *tree         = cursor->right; /* case of root */
-      else if (parent->left == cursor) parent->left  = cursor->right;
-      else                             parent->right = cursor->right;
+      if      (parent == NULL)       *tree         = walk->right; /* case of root */
+      else if (parent->left == walk) parent->left  = walk->right;
+      else                           parent->right = walk->right;
     }
   }
 
-  free(cursor);
+  free(walk);
 
   while (top(stack) != NULL && x == NULL) {
-    cursor         = pop(&stack);
-    cursor->height = 1 + max(height(cursor->left), height(cursor->right));
-    cursor->bf     = height(cursor->left) - height(cursor->right);
-    if (1 < cursor->bf || cursor->bf < -1) { x = cursor; parent = top(stack); }
+    walk         = pop(&stack);
+    walk->height = 1 + max(height(walk->left), height(walk->right));
+    walk->bf     = height(walk->left) - height(walk->right);
+    if (1 < walk->bf || walk->bf < -1) { x = walk; parent = top(stack); }
   }
 
   destroy(&stack);
@@ -351,11 +351,11 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
   if (x == NULL) return;
 
   if   (1 < x->bf) {
-    if (x->left->bf < 0)  avl_rotate_LR(tree, x, parent, less);       /* case of Left Right */
-    else                  avl_rotate_LL(tree, x, parent, less);       /* case of Left Left */
+    if (x->left->bf < 0)  avl_rotate_LR(tree, x, parent, less);   /* case of Left Right */
+    else                  avl_rotate_LL(tree, x, parent, less);   /* case of Left Left */
   } else {
-    if (0 < x->right->bf) avl_rotate_RL(tree, x, parent, less);       /* case of Right Left */
-    else                  avl_rotate_RR(tree, x, parent, less);       /* case of Right Right */
+    if (0 < x->right->bf) avl_rotate_RL(tree, x, parent, less);   /* case of Right Left */
+    else                  avl_rotate_RR(tree, x, parent, less);   /* case of Right Right */
   }
 }
 
