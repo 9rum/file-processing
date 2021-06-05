@@ -79,6 +79,40 @@ static inline uint32_t max(const uint32_t a, const uint32_t b) { return a < b ? 
  */
 static inline uint32_t height(const struct avl_node *tree) { return tree == NULL ? 0 : tree->height; }
 
+/**
+ * avl_rotate_left - implements Left rotation in subtree rooted with @x
+ *
+ * @root:   root node of tree
+ * @x:      root node of subtree
+ * @parent: parent node of @x
+ */
+static inline void avl_rotate_left(struct avl_node **root, struct avl_node *x, struct avl_node *parent) {
+  struct avl_node *rchild = x->right;
+  x->right                = rchild->left;
+  rchild->left            = x;
+
+  if      (parent == NULL)    *root         = rchild; /* case of root */
+  else if (parent->left == x) parent->left  = rchild;
+  else                        parent->right = rchild;
+}
+
+/**
+ * avl_rotate_right - implements Right rotation in subtree rooted with @x
+ *
+ * @root:   root node of tree
+ * @x:      root node of subtree
+ * @parent: parent node of @x
+ */
+static inline void avl_rotate_right(struct avl_node **root, struct avl_node *x, struct avl_node *parent) {
+  struct avl_node *lchild = x->left;
+  x->left                 = lchild->right;
+  lchild->right           = x;
+
+  if      (parent == NULL)    *root         = lchild; /* case of root */
+  else if (parent->left == x) parent->left  = lchild;
+  else                        parent->right = lchild;
+}
+
 /*
  * The below functions use the operator with 3 different
  * calling conventions. The operator denotes:
@@ -95,146 +129,6 @@ static inline uint32_t height(const struct avl_node *tree) { return tree == NULL
  */
 
 /**
- * avl_rotate_LL - implements Left Left rotation in subtree rooted with @x
- *
- * @root:   root node of tree
- * @x:      root node of subtree
- * @parent: parent node of @x
- * @less:   operator defining the (partial) node order
- */
-static inline void avl_rotate_LL(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
-                                 bool (*less)(const void *, const void *)) {
-  struct avl_node *lchild = x->left;
-  x->left                 = lchild->right;
-  lchild->right           = x;
-
-  if      (parent == NULL)    *root         = lchild; /* case of root */
-  else if (parent->left == x) parent->left  = lchild;
-  else                        parent->right = lchild;
-
-  register struct avl_node *walk  = *root;
-           struct stack    *stack = NULL;
-
-  while (walk != x->left && walk != x->right) {
-    push(&stack, walk);
-    walk = less(x->key, walk->key) ? walk->left : walk->right;
-  }
-
-  while (!empty(stack)) {
-    walk         = pop(&stack);
-    walk->height = 1 + max(height(walk->left), height(walk->right));
-    walk->bf     = height(walk->left) - height(walk->right);
-  }
-}
-
-/**
- * avl_rotate_RR - implements Right Right rotation in subtree rooted with @x
- *
- * @root:   root node of tree
- * @x:      root node of subtree
- * @parent: parent node of @x
- * @less:   operator defining the (partial) node order
- */
-static inline void avl_rotate_RR(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
-                                 bool (*less)(const void *, const void *)) {
-  struct avl_node *rchild = x->right;
-  x->right                = rchild->left;
-  rchild->left            = x;
-
-  if      (parent == NULL)    *root         = rchild; /* case of root */
-  else if (parent->left == x) parent->left  = rchild;
-  else                        parent->right = rchild;
-
-  register struct avl_node *walk  = *root;
-           struct stack    *stack = NULL;
-
-  while (walk != x->left && walk != x->right) {
-    push(&stack, walk);
-    walk = less(x->key, walk->key) ? walk->left : walk->right;
-  }
-
-  while (!empty(stack)) {
-    walk         = pop(&stack);
-    walk->height = 1 + max(height(walk->left), height(walk->right));
-    walk->bf     = height(walk->left) - height(walk->right);
-  }
-}
-
-/**
- * avl_rotate_LR - implements Left Right rotation in subtree rooted with @x
- *
- * @root:   root node of tree
- * @x:      root node of subtree
- * @parent: parent node of @x
- * @less:   operator defining the (partial) node order
- */
-static inline void avl_rotate_LR(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
-                                 bool (*less)(const void *, const void *)) {
-  struct avl_node *lchild  = x->left;
-  struct avl_node *rgchild = lchild->right;
-  lchild->right            = rgchild->left;
-  x->left                  = rgchild->right;
-  rgchild->left            = lchild;
-  rgchild->right           = x;
-
-  if      (parent == NULL)    *root         = rgchild; /* case of root */
-  else if (parent->left == x) parent->left  = rgchild;
-  else                        parent->right = rgchild;
-
-  register struct avl_node *walk  = *root;
-           struct stack    *stack = NULL;
-
-  while (walk != x->left && walk != x->right) {
-    push(&stack, walk);
-    walk = less(x->key, walk->key) ? walk->left : walk->right;
-  }
-  push(&stack, lchild);
-
-  while (!empty(stack)) {
-    walk         = pop(&stack);
-    walk->height = 1 + max(height(walk->left), height(walk->right));
-    walk->bf     = height(walk->left) - height(walk->right);
-  }
-}
-
-/**
- * avl_rotate_RL - implements Right Left rotation in subtree rooted with @x
- *
- * @root:   root node of tree
- * @x:      root node of subtree
- * @parent: parent node of @x
- * @less:   operator defining the (partial) node order
- */
-static inline void avl_rotate_RL(struct avl_node **root, struct avl_node *x, struct avl_node *parent,
-                                 bool (*less)(const void *, const void *)) {
-  struct avl_node *rchild  = x->right;
-  struct avl_node *lgchild = rchild->left;
-  x->right                 = lgchild->left;
-  rchild->left             = lgchild->right;
-  lgchild->left            = x;
-  lgchild->right           = rchild;
-
-  if      (parent == NULL)    *root         = lgchild; /* case of root */
-  else if (parent->left == x) parent->left  = lgchild;
-  else                        parent->right = lgchild;
-
-  register struct avl_node *walk  = *root;
-           struct stack    *stack = NULL;
-
-  while (walk != x->left && walk != x->right) {
-    push(&stack, walk);
-    walk = less(x->key, walk->key) ? walk->left : walk->right;
-  }
-  push(&stack, rchild);
-
-  while (!empty(stack)) {
-    walk         = pop(&stack);
-    walk->height = 1 + max(height(walk->left), height(walk->right));
-    walk->bf     = height(walk->left) - height(walk->right);
-  }
-}
-
-/**
  * avl_insert - inserts @key and @value into @tree
  *
  * @tree:  tree to insert @key and @value into
@@ -248,8 +142,6 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
   register struct avl_node *x      = NULL;
            struct avl_node *parent = NULL;
            struct stack    *stack  = NULL;
-
-  push(&stack, NULL);
 
   while (walk != NULL) {
     if  (!(less(key, walk->key) || less(walk->key, key))) { destroy(&stack); return; }
@@ -265,23 +157,45 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
   else if (less(key, walk->key))        walk->left  = node;
   else                                  walk->right = node;
 
-  while (top(stack) != NULL && x == NULL) {
+  while (!empty(stack) && x == NULL) {
     walk         = pop(&stack);
     walk->height = 1 + max(height(walk->left), height(walk->right));
     walk->bf     = height(walk->left) - height(walk->right);
     if (1 < walk->bf || walk->bf < -1) { x = walk; parent = top(stack); }
   }
 
-  destroy(&stack);
-
-  if (x == NULL) return;
+  if   (x == NULL) return;
 
   if   (1 < x->bf) {
-    if (x->left->bf < 0)  avl_rotate_LR(tree, x, parent, less); /* case of Left Right */
-    else                  avl_rotate_LL(tree, x, parent, less); /* case of Left Left */
+    if (x->left->bf < 0) {  /* case of Left Right */
+      push(&stack, x->left->right);
+      push(&stack, x->left);
+      push(&stack, x);
+      avl_rotate_left(tree, x->left, x);
+      avl_rotate_right(tree, x, parent);
+    } else {                /* case of Left Left */
+      push(&stack, x->left);
+      push(&stack, x);
+      avl_rotate_right(tree, x, parent);
+    }
   } else {
-    if (0 < x->right->bf) avl_rotate_RL(tree, x, parent, less); /* case of Right Left */
-    else                  avl_rotate_RR(tree, x, parent, less); /* case of Right Right */
+    if (0 < x->right->bf) { /* case of Right Left */
+      push(&stack, x->right->left);
+      push(&stack, x->right);
+      push(&stack, x);
+      avl_rotate_right(tree, x->right, x);
+      avl_rotate_left(tree, x, parent);
+    } else {                /* case of Right Right */
+      push(&stack, x->right);
+      push(&stack, x);
+      avl_rotate_left(tree, x, parent);
+    }
+  }
+
+  while (!empty(stack)) {
+    walk         = pop(&stack);
+    walk->height = 1 + max(height(walk->left), height(walk->right));
+    walk->bf     = height(walk->left) - height(walk->right);
   }
 }
 
@@ -299,8 +213,6 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
            struct avl_node *parent = NULL;
            struct stack    *stack  = NULL;
 
-  push(&stack, NULL);
-
   while (walk != NULL && (less(key, walk->key) || less(walk->key, key))) {
     push(&stack, walk);
     walk = less(key, walk->key) ? walk->left : walk->right;
@@ -308,7 +220,7 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
 
   if (walk == NULL) { destroy(&stack); return; }
 
-  if (walk->left != NULL && walk->right != NULL) {                /* case of degree 2 */
+  if (walk->left != NULL && walk->right != NULL) {                         /* case of degree 2 */
     parent = walk;
     push(&stack, walk);
 
@@ -319,43 +231,63 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
     parent->value = walk->value;
   }
 
-  parent = top(stack);
-
-  if          (walk->left == NULL && walk->right == NULL) {       /* case of degree 0 */
-    if        (parent == NULL)       *tree         = NULL;        /* case of root */
-    else if   (parent->left == walk) parent->left  = NULL;
-    else                             parent->right = NULL;
-  } else {                                                        /* case of degree 1 */
+  if          (walk->left == NULL && walk->right == NULL) {                /* case of degree 0 */
+    if        ((parent = top(stack)) == NULL) *tree         = NULL;        /* case of root */
+    else if   (parent->left == walk)          parent->left  = NULL;
+    else                                      parent->right = NULL;
+  } else {                                                                 /* case of degree 1 */
     if        (walk->left != NULL) {
-      if      (parent == NULL)       *tree         = walk->left;  /* case of root */
-      else if (parent->left == walk) parent->left  = walk->left;
-      else                           parent->right = walk->left;
+      if      ((parent = top(stack)) == NULL) *tree         = walk->left;  /* case of root */
+      else if (parent->left == walk)          parent->left  = walk->left;
+      else                                    parent->right = walk->left;
     } else {
-      if      (parent == NULL)       *tree         = walk->right; /* case of root */
-      else if (parent->left == walk) parent->left  = walk->right;
-      else                           parent->right = walk->right;
+      if      ((parent = top(stack)) == NULL) *tree         = walk->right; /* case of root */
+      else if (parent->left == walk)          parent->left  = walk->right;
+      else                                    parent->right = walk->right;
     }
   }
 
   free(walk);
 
-  while (top(stack) != NULL && x == NULL) {
+  while (!empty(stack) && x == NULL) {
     walk         = pop(&stack);
     walk->height = 1 + max(height(walk->left), height(walk->right));
     walk->bf     = height(walk->left) - height(walk->right);
     if (1 < walk->bf || walk->bf < -1) { x = walk; parent = top(stack); }
   }
 
-  destroy(&stack);
-
-  if (x == NULL) return;
+  if   (x == NULL) return;
 
   if   (1 < x->bf) {
-    if (x->left->bf < 0)  avl_rotate_LR(tree, x, parent, less);   /* case of Left Right */
-    else                  avl_rotate_LL(tree, x, parent, less);   /* case of Left Left */
+    if (x->left->bf < 0) {                                                 /* case of Left Right */
+      push(&stack, x->left->right);
+      push(&stack, x->left);
+      push(&stack, x);
+      avl_rotate_left(tree, x->left, x);
+      avl_rotate_right(tree, x, parent);
+    } else {                                                               /* case of Left Left */
+      push(&stack, x->left);
+      push(&stack, x);
+      avl_rotate_right(tree, x, parent);
+    }
   } else {
-    if (0 < x->right->bf) avl_rotate_RL(tree, x, parent, less);   /* case of Right Left */
-    else                  avl_rotate_RR(tree, x, parent, less);   /* case of Right Right */
+    if (0 < x->right->bf) {                                                /* case of Right Left */
+      push(&stack, x->right->left);
+      push(&stack, x->right);
+      push(&stack, x);
+      avl_rotate_right(tree, x->right, x);
+      avl_rotate_left(tree, x, parent);
+    } else {                                                               /* case of Right Right */
+      push(&stack, x->right);
+      push(&stack, x);
+      avl_rotate_left(tree, x, parent);
+    }
+  }
+
+  while (!empty(stack)) {
+    walk         = pop(&stack);
+    walk->height = 1 + max(height(walk->left), height(walk->right));
+    walk->bf     = height(walk->left) - height(walk->right);
   }
 }
 
