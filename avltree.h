@@ -139,7 +139,7 @@ static inline void avl_rotate_right(struct avl_node **root, struct avl_node *x, 
 extern inline void avl_insert(struct avl_node **tree, const void *key, void *value,
                               bool (*less)(const void *, const void *)) {
   register struct avl_node *walk   = *tree;
-  register struct avl_node *x      = NULL;
+           struct avl_node *x      = NULL;
            struct avl_node *parent = NULL;
            struct stack    *stack  = NULL;
 
@@ -157,11 +157,11 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
   else if (less(key, walk->key))        walk->left  = node;
   else                                  walk->right = node;
 
-  while (!empty(stack) && x == NULL) {
+  while (!empty(stack)) {
     walk         = pop(&stack);
     walk->height = 1 + max(height(walk->left), height(walk->right));
     walk->bf     = height(walk->left) - height(walk->right);
-    if (1 < walk->bf || walk->bf < -1) { x = walk; parent = top(stack); }
+    if (1 < walk->bf || walk->bf < -1) { x = walk; parent = top(stack); break; }
   }
 
   if   (x == NULL) return;
@@ -209,7 +209,7 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
 extern inline void avl_erase(struct avl_node **tree, const void *key,
                              bool (*less)(const void *, const void *)) {
   register struct avl_node *walk   = *tree;
-  register struct avl_node *x      = NULL;
+           struct avl_node *x      = NULL;
            struct avl_node *parent = NULL;
            struct stack    *stack  = NULL;
 
@@ -249,11 +249,11 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
 
   free(walk);
 
-  while (!empty(stack) && x == NULL) {
+  while (!empty(stack)) {
     walk         = pop(&stack);
     walk->height = 1 + max(height(walk->left), height(walk->right));
     walk->bf     = height(walk->left) - height(walk->right);
-    if (1 < walk->bf || walk->bf < -1) { x = walk; parent = top(stack); }
+    if (1 < walk->bf || walk->bf < -1) { x = walk; parent = top(stack); break; }
   }
 
   if   (x == NULL) return;
