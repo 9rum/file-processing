@@ -33,7 +33,6 @@
  * @left:   the pointer to the left subtree
  * @right:  the pointer to the right subtree
  * @height: the height of the subtree rooted with the node
- * @bf:     the balance factor of the node
  *
  * In a binary tree, the balance factor of a node X is defined
  * to be the height difference
@@ -55,7 +54,6 @@ struct avl_node {
         struct avl_node *left;
         struct avl_node *right;
         uint32_t        height;
-        int32_t         bf;
 } __attribute__((aligned(__BIGGEST_ALIGNMENT__)));
 
 /**
@@ -66,7 +64,6 @@ static inline struct avl_node *avl_get_node() {
   node->left            = NULL;
   node->right           = NULL;
   node->height          = 1;
-  node->bf              = 0;
   return node;
 }
 
@@ -136,8 +133,7 @@ static inline void avl_rotate_right(struct avl_node **root, struct avl_node *x, 
  * @value: the value to insert
  * @less:  operator defining the (partial) node order
  */
-extern inline void avl_insert(struct avl_node **tree, const void *key, void *value,
-                              bool (*less)(const void *, const void *)) {
+extern inline void avl_insert(struct avl_node **tree, const void *key, void *value, bool (*less)(const void *, const void *)) {
   register struct avl_node *walk   = *tree;
            struct avl_node *x      = NULL;
            struct avl_node *parent = NULL;
@@ -160,32 +156,31 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
   while (!empty(stack)) {
     walk         = pop(&stack);
     walk->height = 1 + max(height(walk->left), height(walk->right));
-    walk->bf     = height(walk->left) - height(walk->right);
-    if (1 < walk->bf || walk->bf < -1) { x = walk; parent = top(stack); break; }
+    if (1 + height(walk->right) < height(walk->left) || 1 + height(walk->left) < height(walk->right)) { x = walk; parent = top(stack); break; }
   }
 
   if   (x == NULL) return;
 
-  if   (1 < x->bf) {
-    if (x->left->bf < 0) {  /* case of Left Right */
+  if   (1 + height(x->right) < height(x->left)) {
+    if (height(x->left->left) < height(x->left->right)) {   /* case of Left Right */
       push(&stack, x->left->right);
       push(&stack, x->left);
       push(&stack, x);
       avl_rotate_left(tree, x->left, x);
       avl_rotate_right(tree, x, parent);
-    } else {                /* case of Left Left */
+    } else {                                                /* case of Left Left */
       push(&stack, x->left);
       push(&stack, x);
       avl_rotate_right(tree, x, parent);
     }
   } else {
-    if (0 < x->right->bf) { /* case of Right Left */
+    if (height(x->right->right) < height(x->right->left)) { /* case of Right Left */
       push(&stack, x->right->left);
       push(&stack, x->right);
       push(&stack, x);
       avl_rotate_right(tree, x->right, x);
       avl_rotate_left(tree, x, parent);
-    } else {                /* case of Right Right */
+    } else {                                                /* case of Right Right */
       push(&stack, x->right);
       push(&stack, x);
       avl_rotate_left(tree, x, parent);
@@ -195,7 +190,6 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
   while (!empty(stack)) {
     walk         = pop(&stack);
     walk->height = 1 + max(height(walk->left), height(walk->right));
-    walk->bf     = height(walk->left) - height(walk->right);
   }
 }
 
@@ -206,8 +200,7 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
  * @key:  the key to erase
  * @less: operator defining the (partial) node order
  */
-extern inline void avl_erase(struct avl_node **tree, const void *key,
-                             bool (*less)(const void *, const void *)) {
+extern inline void avl_erase(struct avl_node **tree, const void *key, bool (*less)(const void *, const void *)) {
   register struct avl_node *walk   = *tree;
            struct avl_node *x      = NULL;
            struct avl_node *parent = NULL;
@@ -224,8 +217,8 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
     parent = walk;
     push(&stack, walk);
 
-    if (walk->bf <= 0) for (walk = walk->right; walk->left != NULL; walk = walk->left)  push(&stack, walk);
-    else               for (walk = walk->left; walk->right != NULL; walk = walk->right) push(&stack, walk);
+    if (height(walk->left) <= height(walk->right)) for (walk = walk->right; walk->left != NULL; walk = walk->left)  push(&stack, walk);
+    else                                           for (walk = walk->left; walk->right != NULL; walk = walk->right) push(&stack, walk);
 
     parent->key   = walk->key;
     parent->value = walk->value;
@@ -252,14 +245,13 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
   while (!empty(stack)) {
     walk         = pop(&stack);
     walk->height = 1 + max(height(walk->left), height(walk->right));
-    walk->bf     = height(walk->left) - height(walk->right);
-    if (1 < walk->bf || walk->bf < -1) { x = walk; parent = top(stack); break; }
+    if (1 + height(walk->right) < height(walk->left) || 1 + height(walk->left) < height(walk->right)) { x = walk; parent = top(stack); break; }
   }
 
   if   (x == NULL) return;
 
-  if   (1 < x->bf) {
-    if (x->left->bf < 0) {                                                 /* case of Left Right */
+  if   (1 + height(x->right) < height(x->left)) {
+    if (height(x->left->left) < height(x->left->right)) {                  /* case of Left Right */
       push(&stack, x->left->right);
       push(&stack, x->left);
       push(&stack, x);
@@ -271,7 +263,7 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
       avl_rotate_right(tree, x, parent);
     }
   } else {
-    if (0 < x->right->bf) {                                                /* case of Right Left */
+    if (height(x->right->right) < height(x->right->left)) {                /* case of Right Left */
       push(&stack, x->right->left);
       push(&stack, x->right);
       push(&stack, x);
@@ -287,7 +279,6 @@ extern inline void avl_erase(struct avl_node **tree, const void *key,
   while (!empty(stack)) {
     walk         = pop(&stack);
     walk->height = 1 + max(height(walk->left), height(walk->right));
-    walk->bf     = height(walk->left) - height(walk->right);
   }
 }
 
