@@ -74,7 +74,7 @@ static inline uint32_t max(const uint32_t a, const uint32_t b) { return a < b ? 
  *
  * @tree: tree to get the height
  */
-static inline uint32_t height(const struct avl_node *tree) { return tree == NULL ? 0 : tree->height; }
+static inline uint32_t height(const struct avl_node *restrict tree) { return tree == NULL ? 0 : tree->height; }
 
 /**
  * avl_rotate_left - implements Left rotation in subtree rooted with @x
@@ -83,7 +83,7 @@ static inline uint32_t height(const struct avl_node *tree) { return tree == NULL
  * @x:      root node of subtree
  * @parent: parent node of @x
  */
-static inline void avl_rotate_left(struct avl_node **root, struct avl_node *x, struct avl_node *parent) {
+static inline void avl_rotate_left(struct avl_node **restrict root, struct avl_node *restrict x, struct avl_node *restrict parent) {
   struct avl_node *rchild = x->right;
   x->right                = rchild->left;
   rchild->left            = x;
@@ -100,7 +100,7 @@ static inline void avl_rotate_left(struct avl_node **root, struct avl_node *x, s
  * @x:      root node of subtree
  * @parent: parent node of @x
  */
-static inline void avl_rotate_right(struct avl_node **root, struct avl_node *x, struct avl_node *parent) {
+static inline void avl_rotate_right(struct avl_node **restrict root, struct avl_node *restrict x, struct avl_node *restrict parent) {
   struct avl_node *lchild = x->left;
   x->left                 = lchild->right;
   lchild->right           = x;
@@ -133,7 +133,7 @@ static inline void avl_rotate_right(struct avl_node **root, struct avl_node *x, 
  * @value: the value to insert
  * @less:  operator defining the (partial) node order
  */
-extern inline void avl_insert(struct avl_node **tree, const void *key, void *value, bool (*less)(const void *, const void *)) {
+extern inline void avl_insert(struct avl_node **restrict tree, const void *key, void *value, bool (*less)(const void *, const void *)) {
   register struct avl_node *walk   = *tree;
            struct avl_node *x      = NULL;
            struct avl_node *parent = NULL;
@@ -200,7 +200,7 @@ extern inline void avl_insert(struct avl_node **tree, const void *key, void *val
  * @key:  the key to erase
  * @less: operator defining the (partial) node order
  */
-extern inline void avl_erase(struct avl_node **tree, const void *key, bool (*less)(const void *, const void *)) {
+extern inline void avl_erase(struct avl_node **restrict tree, const void *restrict key, bool (*less)(const void *, const void *)) {
   register struct avl_node *walk   = *tree;
            struct avl_node *x      = NULL;
            struct avl_node *parent = NULL;
@@ -288,7 +288,7 @@ extern inline void avl_erase(struct avl_node **tree, const void *key, bool (*les
  * @tree: tree to traverse
  * @func: function to apply to each node of @tree
  */
-extern inline void avl_preorder(const struct avl_node *tree, void (*func)(const struct avl_node *)) { if (tree != NULL) { func(tree); avl_preorder(tree->left, func); avl_preorder(tree->right, func); } }
+extern inline void avl_preorder(const struct avl_node *restrict tree, void (*func)(const struct avl_node *restrict)) { if (tree != NULL) { func(tree); avl_preorder(tree->left, func); avl_preorder(tree->right, func); } }
 
 /**
  * avl_inorder - implements inorder traversal in @tree
@@ -296,7 +296,7 @@ extern inline void avl_preorder(const struct avl_node *tree, void (*func)(const 
  * @tree: tree to traverse
  * @func: function to apply to each node of @tree
  */
-extern inline void avl_inorder(const struct avl_node *tree, void (*func)(const struct avl_node *)) { if (tree != NULL) { avl_inorder(tree->left, func); func(tree); avl_inorder(tree->right, func); } }
+extern inline void avl_inorder(const struct avl_node *restrict tree, void (*func)(const struct avl_node *restrict)) { if (tree != NULL) { avl_inorder(tree->left, func); func(tree); avl_inorder(tree->right, func); } }
 
 /**
  * avl_postorder - implements postorder traversal in @tree
@@ -304,6 +304,6 @@ extern inline void avl_inorder(const struct avl_node *tree, void (*func)(const s
  * @tree: tree to traverse
  * @func: function to apply to each node of @tree
  */
-extern inline void avl_postorder(const struct avl_node *tree, void (*func)(const struct avl_node *)) { if (tree != NULL) { avl_postorder(tree->left, func); avl_postorder(tree->right, func); func(tree); } }
+extern inline void avl_postorder(const struct avl_node *restrict tree, void (*func)(const struct avl_node *restrict)) { if (tree != NULL) { avl_postorder(tree->left, func); avl_postorder(tree->right, func); func(tree); } }
 
 #endif /* _AVLTREE_H */

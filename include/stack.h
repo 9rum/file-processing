@@ -36,14 +36,14 @@ struct stack {
  *
  * @stack: stack to check
  */
-extern inline bool empty(const struct stack *stack) { return stack == NULL; }
+extern inline bool empty(const struct stack *restrict stack) { return stack == NULL; }
 
 /**
  * top - accesses the top element
  *
  * @stack: stack to access the top element
  */
-extern inline void *top(const struct stack *stack) { return empty(stack) ? NULL : stack->value; }
+extern inline void *top(const struct stack *restrict stack) { return empty(stack) ? NULL : stack->value; }
 
 /**
  * push - inserts element at the top
@@ -51,7 +51,7 @@ extern inline void *top(const struct stack *stack) { return empty(stack) ? NULL 
  * @stack: stack to insert element
  * @value: the value of the element to push
  */
-extern inline void push(struct stack **stack, void *value) {
+extern inline void push(struct stack **restrict stack, void *restrict value) {
   struct stack *top = malloc(sizeof(struct stack));
   top->value        = value;
   top->next         = *stack;
@@ -63,7 +63,7 @@ extern inline void push(struct stack **stack, void *value) {
  *
  * @stack: stack to remove the top element
  */
-extern inline void *pop(struct stack **stack) {
+extern inline void *pop(struct stack **restrict stack) {
   if (empty(*stack))  return NULL;
   struct stack *top   = *stack;
   void         *value = top->value;
@@ -77,7 +77,7 @@ extern inline void *pop(struct stack **stack) {
  *
  * @stack: stack to empty
  */
-extern inline void destroy(struct stack **stack) {
+extern inline void destroy(struct stack **restrict stack) {
   register struct stack *top;
 
   while (!empty(*stack)) {
