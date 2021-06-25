@@ -29,7 +29,7 @@
 struct stack {
   void         *value;
   struct stack *next;
-};
+} __attribute__((aligned(__BIGGEST_ALIGNMENT__)));
 
 /**
  * empty - checks whether @stack is empty
