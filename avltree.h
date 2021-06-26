@@ -133,7 +133,7 @@ static inline void avl_rotate_right(struct avl_node **restrict root, struct avl_
  * @value: the value to insert
  * @less:  operator defining the (partial) node order
  */
-extern inline void avl_insert(struct avl_node **restrict tree, const void *key, void *value, bool (*less)(const void *, const void *)) {
+extern inline void avl_insert(struct avl_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *, const void *)) {
   register struct avl_node *walk   = *tree;
            struct avl_node *x      = NULL;
            struct avl_node *parent = NULL;
