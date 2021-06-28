@@ -77,7 +77,7 @@ static inline uint32_t max(const uint32_t a, const uint32_t b) { return a < b ? 
 static inline uint32_t height(const struct avl_node *restrict tree) { return tree == NULL ? 0 : tree->height; }
 
 /**
- * avl_rotate_left - implements Left rotation in subtree rooted with @x
+ * avl_rotate_left - rotates subtree rooted with @x counterclockwise
  *
  * @root:   root node of tree
  * @x:      root node of subtree
@@ -94,7 +94,7 @@ static inline void avl_rotate_left(struct avl_node **restrict root, struct avl_n
 }
 
 /**
- * avl_rotate_right - implements Right rotation in subtree rooted with @x
+ * avl_rotate_right - rotates subtree rooted with @x clockwise
  *
  * @root:   root node of tree
  * @x:      root node of subtree
@@ -145,13 +145,13 @@ extern inline void avl_insert(struct avl_node **restrict tree, const void *restr
     walk = less(key, walk->key) ? walk->left : walk->right;
   }
 
-  struct avl_node *node = avl_get_node();
-  node->key             = key;
-  node->value           = value;
+  walk        = avl_get_node();
+  walk->key   = key;
+  walk->value = value;
 
-  if      ((walk = top(stack)) == NULL) *tree       = node;
-  else if (less(key, walk->key))        walk->left  = node;
-  else                                  walk->right = node;
+  if      ((parent = top(stack)) == NULL) *tree         = walk;
+  else if (less(key, parent->key))        parent->left  = walk;
+  else                                    parent->right = walk;
 
   while (!empty(stack)) {
     walk         = pop(&stack);
