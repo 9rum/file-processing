@@ -59,7 +59,7 @@ struct avl_node {
 /**
  * avl_get_node - returns a new struct avl_node
  */
-static inline struct avl_node *avl_get_node() {
+static inline struct avl_node *avl_get_node(void) {
   struct avl_node *node = malloc(sizeof(struct avl_node));
   node->left            = NULL;
   node->right           = NULL;
