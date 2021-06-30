@@ -12,32 +12,32 @@
 
 #include "avltree.h"
 
-bool less(const void *a, const void *b) { return (uintptr_t)a < (uintptr_t)b; }
+bool less(const void *a, const void *b) { return *(uintptr_t *)a < *(uintptr_t *)b; }
 
-void print(const struct avl_node *restrict node) { printf("%" PRIuPTR " ", (uintptr_t)node->key); }
+void print(const struct avl_node *restrict node) { printf("%" PRIuPTR " ", *(uintptr_t *)node->key); }
 
-int32_t main() {
+int main(void) {
   const uintptr_t testcases[] = {40, 11, 77, 33, 20, 90, 99, 70, 88, 80, 66, 10, 22, 30, 44, 55, 50, 60, 25, 49};
 
   struct avl_node *tree = NULL;
 
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it) {
-    avl_insert(&tree, (void *)*it, NULL, less);
+    avl_insert(&tree, it, NULL, less);
     avl_inorder(tree, print);
     printf("\n");
   }
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it) {
-    avl_erase(&tree, (void *)*it, less);
+    avl_erase(&tree, it, less);
     avl_inorder(tree, print);
     printf("\n");
   }
   for (const uintptr_t *it = testcases; it < testcases + sizeof(testcases)/sizeof(uintptr_t); ++it) {
-    avl_insert(&tree, (void *)*it, NULL, less);
+    avl_insert(&tree, it, NULL, less);
     avl_inorder(tree, print);
     printf("\n");
   }
   for (const uintptr_t *it = testcases + sizeof(testcases)/sizeof(uintptr_t) - 1; testcases <= it; --it) {
-    avl_erase(&tree, (void *)*it, less);
+    avl_erase(&tree, it, less);
     avl_inorder(tree, print);
     printf("\n");
   }
