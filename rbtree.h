@@ -233,7 +233,8 @@ extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict
 
   if (walk->color == RED) { free(walk); destroy(&stack); return; }
 
-  walk = (parent = walk)->right == NULL ? parent->left : parent->right;
+  parent = walk;
+  walk   = parent->right == NULL ? parent->left : parent->right;
   free(parent);
 
   if (walk != NULL && walk->color == RED) { walk->color = BLACK; destroy(&stack); return; }
