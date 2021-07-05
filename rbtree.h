@@ -288,25 +288,25 @@ extern inline void rb_erase(struct rb_node **restrict tree, const void *restrict
 }
 
 /**
- * rb_preorder - implements preorder traversal in @tree
+ * rb_preorder - applies @func to each node of @tree preorderwise
  *
- * @tree: tree to traverse
+ * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
 extern inline void rb_preorder(const struct rb_node *restrict tree, void (*func)(const struct rb_node *restrict)) { if (tree != NULL) { func(tree); rb_preorder(tree->left, func); rb_preorder(tree->right, func); } }
 
 /**
- * rb_inorder - implements inorder traversal in @tree
+ * rb_inorder - applies @func to each node of @tree inorderwise
  *
- * @tree: tree to traverse
+ * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
 extern inline void rb_inorder(const struct rb_node *restrict tree, void (*func)(const struct rb_node *restrict)) { if (tree != NULL) { rb_inorder(tree->left, func); func(tree); rb_inorder(tree->right, func); } }
 
 /**
- * rb_postorder - implements postorder traversal in @tree
+ * rb_postorder - applies @func to each node of @tree postorderwise
  *
- * @tree: tree to traverse
+ * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
 extern inline void rb_postorder(const struct rb_node *restrict tree, void (*func)(const struct rb_node *restrict)) { if (tree != NULL) { rb_postorder(tree->left, func); rb_postorder(tree->right, func); func(tree); } }

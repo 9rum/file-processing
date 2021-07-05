@@ -283,25 +283,25 @@ extern inline void avl_erase(struct avl_node **restrict tree, const void *restri
 }
 
 /**
- * avl_preorder - implements preorder traversal in @tree
+ * avl_preorder - applies @func to each node of @tree preorderwise
  *
- * @tree: tree to traverse
+ * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
 extern inline void avl_preorder(const struct avl_node *restrict tree, void (*func)(const struct avl_node *restrict)) { if (tree != NULL) { func(tree); avl_preorder(tree->left, func); avl_preorder(tree->right, func); } }
 
 /**
- * avl_inorder - implements inorder traversal in @tree
+ * avl_inorder - applies @func to each node of @tree inorderwise
  *
- * @tree: tree to traverse
+ * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
 extern inline void avl_inorder(const struct avl_node *restrict tree, void (*func)(const struct avl_node *restrict)) { if (tree != NULL) { avl_inorder(tree->left, func); func(tree); avl_inorder(tree->right, func); } }
 
 /**
- * avl_postorder - implements postorder traversal in @tree
+ * avl_postorder - applies @func to each node of @tree postorderwise
  *
- * @tree: tree to traverse
+ * @tree: tree to apply @func to each node of
  * @func: function to apply to each node of @tree
  */
 extern inline void avl_postorder(const struct avl_node *restrict tree, void (*func)(const struct avl_node *restrict)) { if (tree != NULL) { avl_postorder(tree->left, func); avl_postorder(tree->right, func); func(tree); } }
