@@ -37,12 +37,12 @@
  * In addition to the requirements imposed on a binary search tree,
  * the following must be satisfied by a red–black tree:
  *
- * 1. Each node is either red or black
- * 2. The root node is black
- * 3. All NIL leaves are black
- * 4. Both children of every red node are black
- * 5. Every simple path from a given node to any of its descendant NIL leaves
- *    goes through the same number of black nodes
+ *  1. Each node is either red or black
+ *  2. The root node is black
+ *  3. All NIL leaves are black
+ *  4. Both children of every red node are black
+ *  5. Every simple path from a given node to any of its descendant NIL leaves
+ *     goes through the same number of black nodes
  *
  * See https://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1457&context=cstech
  */
