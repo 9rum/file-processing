@@ -23,7 +23,7 @@
 #ifndef _RBTREE_H
 #define _RBTREE_H
 
-#include "include/stack.h"
+#include <stack.h>
 
 /**
  * struct rb_node - a node in red-black tree

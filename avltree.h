@@ -22,8 +22,7 @@
 #define _AVLTREE_H
 
 #include <stdint.h>
-
-#include "include/stack.h"
+#include <stack.h>
 
 /**
  * struct avl_node - a node in AVL tree
