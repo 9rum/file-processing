@@ -36,12 +36,12 @@
  * In a binary tree, the balance factor of a node X is defined
  * to be the height difference
  *
- * BF(X) := Height(LeftSubtree(X)) - Height(RightSubtree(X))
+ *    BF(X) := Height(LeftSubtree(X)) - Height(RightSubtree(X))
  *
  * of its two child subtrees.
  * A binary tree is defined to be an AVL tree if the invariant
  *
- * BF(X) ∈ {-1, 0, 1}
+ *    BF(X) ∈ {-1, 0, 1}
  *
  * holds for every node X in the tree.
  *
