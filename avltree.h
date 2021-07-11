@@ -133,10 +133,10 @@ static inline void avl_rotate_right(struct avl_node **restrict root, struct avl_
  * @less:  operator defining the (partial) node order
  */
 extern inline void avl_insert(struct avl_node **restrict tree, const void *restrict key, void *restrict value, bool (*less)(const void *, const void *)) {
-  register struct avl_node *walk   = *tree;
-           struct avl_node *x      = NULL;
-           struct avl_node *parent = NULL;
-           struct stack    *stack  = NULL;
+  register struct avl_node *walk  = *tree;
+           struct avl_node *x     = NULL;
+           struct avl_node *parent;
+           struct stack    *stack = NULL;
 
   while (walk != NULL) {
     if  (!(less(key, walk->key) || less(walk->key, key))) { destroy(&stack); return; }
@@ -200,10 +200,10 @@ extern inline void avl_insert(struct avl_node **restrict tree, const void *restr
  * @less: operator defining the (partial) node order
  */
 extern inline void avl_erase(struct avl_node **restrict tree, const void *restrict key, bool (*less)(const void *, const void *)) {
-  register struct avl_node *walk   = *tree;
-           struct avl_node *x      = NULL;
-           struct avl_node *parent = NULL;
-           struct stack    *stack  = NULL;
+  register struct avl_node *walk  = *tree;
+           struct avl_node *x     = NULL;
+           struct avl_node *parent;
+           struct stack    *stack = NULL;
 
   while (walk != NULL && (less(key, walk->key) || less(walk->key, key))) {
     push(&stack, walk);
